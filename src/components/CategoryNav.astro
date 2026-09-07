@@ -1,0 +1,13 @@
+---
+import { sanityClient } from '../lib/sanity';
+import { CATEGORIES_QUERY } from '../lib/queries';
+
+const categories = await sanityClient.fetch(CATEGORIES_QUERY);
+---
+<nav aria-label="Categories">
+	<ul>
+		{categories.map((c: { _id: string; title: string; slug: string }) => (
+			<li><a href={`/category/${c.slug}`}>{c.title}</a></li>
+		))}
+	</ul>
+</nav>

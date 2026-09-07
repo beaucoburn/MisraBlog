@@ -1,0 +1,40 @@
+---
+import { sanityClient } from '../../lib/sanity';
+import { CATEGORIES_QUERY, POSTS_BY_CATEGORY_QUERY } from '../../lib/queries';
+
+interface CategoryProps {
+	_id: string;
+	title: string;
+	slug: string;
+}
+
+export async function getStaticPaths() {
+	const categories = await sanityClient.fetch(CATEGORIES_QUERY);
+	return categories.map((category: CategoryProps) => ({
+		params: { slug: category.slug },
+		props: { category },
+	}));
+}
+
+interface Props {
+	category: CategoryProps;
+}
+
+const { category } = Astro.props;
+const posts = await sanityClient.fetch(POSTS_BY_CATEGORY_QUERY, { categoryId: category._id });
+---
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>{category.title}</title>
+	</head>
+	<body>
+		<h1>{category.title}</h1>
+		<ul>
+			{posts.map((p: { _id: string; slug: string; title: string }) => (
+				<li><a href={`/posts/${p.slug}`}>{p.title}</a></li>
+			))}
+		</ul>
+	</body>
+</html>
