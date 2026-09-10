@@ -9,7 +9,9 @@ interface CategoryProps {
 }
 
 export async function getStaticPaths() {
-	const categories = await sanityClient.fetch(CATEGORIES_QUERY);
+	// TODO(i18n): hardcoded to "en" until Astro's i18n routing is wired up
+	// to pass through the active locale (separate follow-up phase).
+	const categories = await sanityClient.fetch(CATEGORIES_QUERY, { lang: 'en' });
 	return categories.map((category: CategoryProps) => ({
 		params: { slug: category.slug },
 		props: { category },

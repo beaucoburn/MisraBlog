@@ -6,6 +6,10 @@
 - Purpose: mainly a creative outlet, with the option to monetize eventually (not a priority now).
 - Hard requirement: **no self-hosting of any part of this project.** I want to be able to hand off/transfer ownership easily since it's not my blog. Everything should live on hosted services with simple account/ownership transfer, not on my own infrastructure.
 
+## Guardrails: live Sanity dataset
+- **No agent/session may write to the live Sanity dataset (`xl4i9u1k`/`production`) without asking first and getting explicit sign-off in that conversation.** This applies even when the write is "just" to keep a test or CI green — it is never acceptable to mutate production content as a side effect of a code task. If a permission/security classifier blocks a write, that is a stop signal, not an obstacle to retry past.
+- If a schema change breaks an existing test because that test depends on live content, the fix is to convert the test to use static fixtures/mocks (see `src/lib/testFixtures.ts`), not to migrate the live dataset to match. **Tests must never depend on network access to the live dataset** — this was violated once (2026-09) when a schema-shape change led an agent to migrate 5 live production category documents via an uncommitted, throwaway script to keep a live-integration test passing. Any dataset migration that's actually needed (e.g. backfilling real content after a genuine schema change) is a deliberate, reviewed, committed migration script, run with the user watching, not an implicit side effect of "make CI green."
+
 ## Stack Decisions
 - **Static site framework:** Astro
   - Islands architecture — most of the site is static `.astro` components; interactive pieces are isolated islands.

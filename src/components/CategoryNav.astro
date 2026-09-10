@@ -2,7 +2,9 @@
 import { sanityClient } from '../lib/sanity';
 import { CATEGORIES_QUERY } from '../lib/queries';
 
-const categories = await sanityClient.fetch(CATEGORIES_QUERY);
+// TODO(i18n): hardcoded to "en" until Astro's i18n routing is wired up to
+// pass through the active locale (separate follow-up phase).
+const categories = await sanityClient.fetch(CATEGORIES_QUERY, { lang: 'en' });
 ---
 <nav aria-label="Categories">
 	<ul>

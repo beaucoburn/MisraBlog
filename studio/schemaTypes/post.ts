@@ -6,6 +6,17 @@ export default defineType({
   type: 'document',
   fields: [
     defineField({
+      // Managed by the @sanity/document-internationalization plugin (see
+      // sanity.config.ts). Not editable directly: new documents get this
+      // set via the `post-en` initial value template, and the Turkish
+      // stub created by the auto-stub publish action sets it to 'tr'.
+      name: 'language',
+      title: 'Language',
+      type: 'string',
+      readOnly: true,
+      hidden: true,
+    }),
+    defineField({
       name: 'title',
       title: 'Title',
       type: 'string',

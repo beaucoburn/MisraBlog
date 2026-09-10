@@ -1,5 +1,9 @@
-import { expect, test } from 'vitest';
-import { getStaticPaths } from './[slug].astro';
+import { expect, test, vi } from 'vitest';
+import { CATEGORY_FIXTURES } from '../../lib/testFixtures';
+
+vi.mock('../../lib/sanity', () => ({
+  sanityClient: { fetch: vi.fn().mockResolvedValue(CATEGORY_FIXTURES) },
+}));
 
 const SEEDED_SLUGS = ['music', 'art', 'cooking', 'writing'];
 
@@ -9,6 +13,7 @@ type StaticPathEntry = {
 };
 
 test('getStaticPaths returns one entry per seeded category', async () => {
+  const { getStaticPaths } = await import('./[slug].astro');
   const paths = (await getStaticPaths()) as StaticPathEntry[];
 
   for (const slug of SEEDED_SLUGS) {
@@ -19,6 +24,7 @@ test('getStaticPaths returns one entry per seeded category', async () => {
 });
 
 test('getStaticPaths does not produce duplicate slugs', async () => {
+  const { getStaticPaths } = await import('./[slug].astro');
   const paths = (await getStaticPaths()) as StaticPathEntry[];
   const slugs = paths.map((p) => p.params.slug);
   const uniqueSlugs = new Set(slugs);
