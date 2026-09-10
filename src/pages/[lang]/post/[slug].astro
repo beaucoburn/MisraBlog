@@ -1,0 +1,86 @@
+---
+import { sanityClient } from '../../../lib/sanity';
+import { POST_BY_SLUG_QUERY, POST_SLUGS_QUERY, TRANSLATION_SIBLING_QUERY } from '../../../lib/queries';
+import { LOCALES, NOT_TRANSLATED_MESSAGE, type Locale } from '../../../lib/i18n';
+import { blocksToPlainText, type PortableTextBlock } from '../../../lib/portableText';
+import LanguageSwitcher from '../../../components/LanguageSwitcher.astro';
+
+interface PostDoc {
+	_id: string;
+	title: string;
+	slug: string;
+	publishedAt: string;
+	body: PortableTextBlock[] | null;
+	language: Locale;
+}
+
+interface TranslationSibling {
+	translations: Array<{ language: Locale; post: { slug: string; body: PortableTextBlock[] | null } }>;
+}
+
+export async function getStaticPaths() {
+	const paths = [];
+	for (const lang of LOCALES) {
+		const slugs = await sanityClient.fetch(POST_SLUGS_QUERY, { lang });
+		for (const { slug } of slugs as Array<{ slug: string }>) {
+			paths.push({ params: { lang, slug }, props: { lang } });
+		}
+	}
+	return paths;
+}
+
+interface Props {
+	lang: Locale;
+}
+
+const { lang } = Astro.props;
+const { slug } = Astro.params;
+
+const post: PostDoc | null = await sanityClient.fetch(POST_BY_SLUG_QUERY, { slug, lang });
+
+// Untranslated = empty/absent body, not a missing document — every post
+// exists in both languages via the auto-created translation stub.
+const hasBody = Array.isArray(post?.body) && post.body.length > 0;
+const paragraphs = hasBody ? blocksToPlainText(post!.body) : [];
+
+// Resolve the sibling's slug in every other locale via translation.metadata
+// (never by assuming the same slug string works cross-locale). Fall back to
+// this page's own slug for the current locale.
+const switcherLinks: Partial<Record<Locale, string>> = { [lang]: `/${lang}/post/${slug}` };
+if (post) {
+	const sibling: TranslationSibling | null = await sanityClient.fetch(TRANSLATION_SIBLING_QUERY, {
+		id: post._id,
+	});
+	if (sibling) {
+		for (const translation of sibling.translations) {
+			if (translation.post?.slug) {
+				switcherLinks[translation.language] = `/${translation.language}/post/${translation.post.slug}`;
+			}
+		}
+	}
+}
+---
+<html lang={lang}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>{hasBody ? post!.title : slug}</title>
+	</head>
+	<body>
+		<LanguageSwitcher currentLang={lang} links={switcherLinks} />
+		{post ? (
+			hasBody ? (
+				<>
+					<h1>{post.title}</h1>
+					{paragraphs.map((text) => (
+						<p>{text}</p>
+					))}
+				</>
+			) : (
+				<p>{NOT_TRANSLATED_MESSAGE[lang]}</p>
+			)
+		) : (
+			<p>{NOT_TRANSLATED_MESSAGE[lang]}</p>
+		)}
+	</body>
+</html>

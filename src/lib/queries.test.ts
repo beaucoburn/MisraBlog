@@ -44,6 +44,7 @@ test('POSTS_BY_CATEGORY_QUERY returns posts referencing the given category', asy
 
   const posts = await sanityClient.fetch(POSTS_BY_CATEGORY_QUERY, {
     categoryId: 'category-music',
+    lang: 'en',
   });
 
   expect(Array.isArray(posts)).toBe(true);

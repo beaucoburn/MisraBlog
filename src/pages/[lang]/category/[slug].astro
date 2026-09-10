@@ -1,0 +1,59 @@
+---
+import { sanityClient } from '../../../lib/sanity';
+import { CATEGORIES_QUERY, POSTS_BY_CATEGORY_QUERY } from '../../../lib/queries';
+import { LOCALES, UNTRANSLATED_POST_LABEL, type Locale } from '../../../lib/i18n';
+import LanguageSwitcher from '../../../components/LanguageSwitcher.astro';
+
+interface CategoryProps {
+	_id: string;
+	title: string;
+	slug: string;
+}
+
+export async function getStaticPaths() {
+	const paths = [];
+	for (const lang of LOCALES) {
+		const categories = await sanityClient.fetch(CATEGORIES_QUERY, { lang });
+		for (const category of categories as CategoryProps[]) {
+			paths.push({
+				params: { lang, slug: category.slug },
+				props: { category, lang },
+			});
+		}
+	}
+	return paths;
+}
+
+interface Props {
+	category: CategoryProps;
+	lang: Locale;
+}
+
+const { category, lang } = Astro.props;
+const posts = await sanityClient.fetch(POSTS_BY_CATEGORY_QUERY, { categoryId: category._id, lang });
+
+// Category slugs are shared across locales (a single canonical `slug`
+// field, not per-language — see studio category schema), so the switcher
+// just swaps the /en//tr/ prefix rather than needing a translation.metadata
+// lookup (that's only required for posts, whose slugs can differ).
+const switcherLinks: Partial<Record<Locale, string>> = {};
+for (const locale of LOCALES) {
+	switcherLinks[locale] = `/${locale}/category/${category.slug}`;
+}
+---
+<html lang={lang}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<title>{category.title}</title>
+	</head>
+	<body>
+		<h1>{category.title}</h1>
+		<LanguageSwitcher currentLang={lang} links={switcherLinks} />
+		<ul>
+			{posts.map((p: { _id: string; slug: string; title: string }) => (
+				<li><a href={`/${lang}/post/${p.slug}`}>{p.title || UNTRANSLATED_POST_LABEL[lang]}</a></li>
+			))}
+		</ul>
+	</body>
+</html>

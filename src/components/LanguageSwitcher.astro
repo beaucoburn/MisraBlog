@@ -1,0 +1,29 @@
+---
+// Functional-only language switcher — no styling/visual design (that's
+// separate, later work per CLAUDE.md's daisy-motif/design phase).
+//
+// `links` maps every locale (including the current one) to the href of
+// the equivalent page in that locale. Callers are responsible for
+// resolving the right href per locale:
+//   - category pages: trivial, same slug, just swap the /en//tr/ prefix.
+//   - post pages: must resolve the sibling's actual slug via
+//     TRANSLATION_SIBLING_QUERY, since slugs can differ across locales.
+//     Link to the sibling's page even if it's untranslated (that page
+//     renders its own localized placeholder rather than 404ing).
+import { LOCALES, type Locale } from '../lib/i18n';
+
+interface Props {
+  currentLang: Locale;
+  links: Partial<Record<Locale, string>>;
+}
+
+const { currentLang, links } = Astro.props;
+const otherLocales = LOCALES.filter((locale) => locale !== currentLang && links[locale]);
+---
+<nav aria-label="Language switcher">
+  <ul>
+    {otherLocales.map((locale) => (
+      <li><a href={links[locale]} hreflang={locale}>{locale}</a></li>
+    ))}
+  </ul>
+</nav>

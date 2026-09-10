@@ -1,15 +1,19 @@
 ---
 import { sanityClient } from '../lib/sanity';
 import { CATEGORIES_QUERY } from '../lib/queries';
+import type { Locale } from '../lib/i18n';
 
-// TODO(i18n): hardcoded to "en" until Astro's i18n routing is wired up to
-// pass through the active locale (separate follow-up phase).
-const categories = await sanityClient.fetch(CATEGORIES_QUERY, { lang: 'en' });
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const categories = await sanityClient.fetch(CATEGORIES_QUERY, { lang });
 ---
 <nav aria-label="Categories">
 	<ul>
 		{categories.map((c: { _id: string; title: string; slug: string }) => (
-			<li><a href={`/category/${c.slug}`}>{c.title}</a></li>
+			<li><a href={`/${lang}/category/${c.slug}`}>{c.title}</a></li>
 		))}
 	</ul>
 </nav>

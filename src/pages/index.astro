@@ -1,18 +1,8 @@
 ---
-import CategoryNav from '../components/CategoryNav.astro';
+// Required by Astro's i18n routing: with `prefixDefaultLocale: true`,
+// there's no unprefixed page of our own at "/" (both locales live under
+// /en/ and /tr/), but Astro still needs an index page to exist here in
+// order to inject the `redirectToDefaultLocale` redirect to `/en/`. See
+// astro.config.mjs and CLAUDE.md's note that `defaultLocale: 'en'` is a
+// low-stakes technical fallback only, not a "primary language" decision.
 ---
-
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-		<CategoryNav />
-	</body>
-</html>
