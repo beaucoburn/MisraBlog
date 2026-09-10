@@ -9,6 +9,7 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
+    "preview:e2e": "node scripts/staticServer.mjs",
     "astro": "astro",
     "typecheck": "astro check",
     "test": "vitest run",
