@@ -102,6 +102,12 @@ export async function ensureTranslationStub(
     _type: schemaTypeName,
     language: targetLanguage,
     slug: sourceDoc?.slug,
+    // Categories are language-independent taxonomy, not translatable text -
+    // carry them over so the stub still shows up when browsing this
+    // category in the target language (as an untranslated placeholder),
+    // rather than disappearing from that listing until she manually
+    // re-tags it.
+    categories: sourceDoc?.categories,
   })
   tx.createIfNotExists({
     _id: metadataId,

@@ -41,11 +41,13 @@ describe('ensureTranslationStub', () => {
   test('creates a Turkish stub post when an English post is published first', async () => {
     const { client, create, createIfNotExists, commit, fetch } = createMockClient(null);
 
+    const categories = [{ _key: 'a1', _type: 'reference', _ref: 'category-music' }];
     await ensureTranslationStub(client, 'post-en-1', {
       _id: 'post-en-1',
       _type: 'post',
       language: 'en',
       slug: { _type: 'slug', current: 'my-post' },
+      categories,
     } as any);
 
     expect(fetch).toHaveBeenCalledTimes(1);
@@ -55,6 +57,7 @@ describe('ensureTranslationStub', () => {
     expect(trDoc._type).toBe('post');
     expect(trDoc.language).toBe('tr');
     expect(trDoc.slug).toEqual({ _type: 'slug', current: 'my-post' });
+    expect(trDoc.categories).toEqual(categories);
     expect(trDoc._id.startsWith('drafts.')).toBe(true);
     expect(trDoc.body).toBeUndefined();
     expect(trDoc.title).toBeUndefined();
