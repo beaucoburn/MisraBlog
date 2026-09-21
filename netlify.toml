@@ -1,0 +1,8 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+[build.environment]
+  # Astro 7 + package.json "engines" require Node >=22.12.0; pin explicitly
+  # so Netlify's build image doesn't fall back to an older default.
+  NODE_VERSION = "22"
