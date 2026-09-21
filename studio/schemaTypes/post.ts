@@ -30,6 +30,29 @@ export default defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'excerpt',
+      title: 'Excerpt',
+      type: 'text',
+      rows: 3,
+      description: 'Short summary shown on the homepage feed and category listing cards. Keep it brief (under ~200 characters).',
+      validation: (Rule) => Rule.max(200),
+    }),
+    defineField({
+      name: 'coverImage',
+      title: 'Cover image',
+      type: 'image',
+      options: {hotspot: true},
+      description: 'Used as the thumbnail on the homepage feed and category listing cards.',
+      fields: [
+        defineField({
+          name: 'alt',
+          title: 'Alt text',
+          type: 'string',
+          description: 'Brief description of the image for screen readers and SEO. Optional, but recommended.',
+        }),
+      ],
+    }),
+    defineField({
       name: 'categories',
       title: 'Categories',
       type: 'array',
