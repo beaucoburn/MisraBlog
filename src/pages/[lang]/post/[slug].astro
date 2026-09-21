@@ -1,4 +1,5 @@
 ---
+import Layout from '../../../layouts/Layout.astro';
 import { sanityClient } from '../../../lib/sanity';
 import { POST_BY_SLUG_QUERY, POST_SLUGS_QUERY, TRANSLATION_SIBLING_QUERY } from '../../../lib/queries';
 import { LOCALES, NOT_TRANSLATED_MESSAGE, type Locale } from '../../../lib/i18n';
@@ -60,27 +61,20 @@ if (post) {
 	}
 }
 ---
-<html lang={lang}>
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
-		<title>{hasBody ? post!.title : slug}</title>
-	</head>
-	<body>
-		<LanguageSwitcher currentLang={lang} links={switcherLinks} />
-		{post ? (
-			hasBody ? (
-				<>
-					<h1>{post.title}</h1>
-					{paragraphs.map((text) => (
-						<p>{text}</p>
-					))}
-				</>
-			) : (
-				<p>{NOT_TRANSLATED_MESSAGE[lang]}</p>
-			)
+<Layout lang={lang} title={hasBody ? post!.title : slug}>
+	<LanguageSwitcher currentLang={lang} links={switcherLinks} slot="nav" />
+	{post ? (
+		hasBody ? (
+			<>
+				<h1>{post.title}</h1>
+				{paragraphs.map((text) => (
+					<p>{text}</p>
+				))}
+			</>
 		) : (
 			<p>{NOT_TRANSLATED_MESSAGE[lang]}</p>
-		)}
-	</body>
-</html>
+		)
+	) : (
+		<p>{NOT_TRANSLATED_MESSAGE[lang]}</p>
+	)}
+</Layout>

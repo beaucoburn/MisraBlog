@@ -1,0 +1,72 @@
+---
+// Shared base layout for all locale-prefixed pages.
+//
+// Establishes the DOM split a future daisy bloom-trail feature needs (see
+// CLAUDE.md "Design: Daisy Motif"):
+//   - `.bloom-layer` — reserved, empty mount point for the future bloom
+//     trail. Fixed, full-page, low z-index, purely decorative
+//     (`aria-hidden`, `pointer-events: none`) so it never intercepts input
+//     or shows up to assistive tech.
+//   - `.content-box[data-bloom-keepout]` — inner content wrappers (nav,
+//     main) that sit above the bloom layer with an opaque background, and
+//     expose the `data-bloom-keepout` hook a future script will use to
+//     compute keep-out rects via `getBoundingClientRect()`.
+//
+// This file only builds the structural skeleton — no bloom JS/SVGs here.
+import type { Locale } from '../lib/i18n';
+
+interface Props {
+	lang: Locale;
+	title: string;
+}
+
+const { lang, title } = Astro.props;
+---
+
+<html lang={lang}>
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+		<link rel="icon" href="/favicon.ico" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+	</head>
+	<body>
+		<div class="bloom-layer" aria-hidden="true"></div>
+		<div class="content-box" data-bloom-keepout>
+			<slot name="nav" />
+		</div>
+		<div class="content-box" data-bloom-keepout>
+			<slot />
+		</div>
+	</body>
+</html>
+
+<style is:global>
+	*,
+	*::before,
+	*::after {
+		box-sizing: border-box;
+	}
+
+	body {
+		margin: 0;
+	}
+</style>
+
+<style>
+	.bloom-layer {
+		position: fixed;
+		inset: 0;
+		z-index: 0;
+		pointer-events: none;
+	}
+
+	.content-box {
+		position: relative;
+		z-index: 1;
+		background: #fff;
+		padding: 1rem;
+	}
+</style>
