@@ -1,0 +1,88 @@
+---
+// The one header for every page, so navigation doesn't differ between the
+// homepage, a category listing and a post (it used to: CategoryNav was
+// homepage-only, LanguageSwitcher was everywhere else).
+//
+// `switcherLinks` is a prop rather than something computed here because
+// only the page knows how to reach itself in the other locale:
+//   - home / about / category pages: the path is identical apart from the
+//     locale segment, so `localizedPaths()` is enough.
+//   - post pages: slugs differ per language, so the sibling has to be
+//     resolved through translation.metadata first.
+import CategoryNav from './CategoryNav.astro';
+import LanguageSwitcher from './LanguageSwitcher.astro';
+import {
+  ABOUT_LABEL,
+  HOME_LINK_LABEL,
+  PAGES_NAV_LABEL,
+  SITE_TITLE,
+  type Locale,
+} from '../lib/i18n';
+
+interface Props {
+  lang: Locale;
+  switcherLinks: Partial<Record<Locale, string>>;
+}
+
+const { lang, switcherLinks } = Astro.props;
+---
+<header class="site-header">
+	<a class="site-header__title" href={`/${lang}/`} aria-label={`${SITE_TITLE} — ${HOME_LINK_LABEL[lang]}`}>
+		{SITE_TITLE}
+	</a>
+	<div class="site-header__navs">
+		<CategoryNav lang={lang} />
+		<nav aria-label={PAGES_NAV_LABEL[lang]}>
+			<ul>
+				<li><a href={`/${lang}/about`}>{ABOUT_LABEL[lang]}</a></li>
+			</ul>
+		</nav>
+		<LanguageSwitcher currentLang={lang} links={switcherLinks} />
+	</div>
+</header>
+
+<style>
+	/* Wrapping flex rather than a hamburger menu: no JS, and it degrades
+	   into stacked rows on a ~375px screen instead of overflowing. */
+	.site-header {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		justify-content: space-between;
+		gap: 0.5rem 1.5rem;
+	}
+
+	.site-header__title {
+		font-size: clamp(1.25rem, 4vw, 1.75rem);
+		font-weight: 700;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	.site-header__title:hover,
+	.site-header__title:focus-visible {
+		text-decoration: underline;
+	}
+
+	.site-header__navs {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: baseline;
+		gap: 0.25rem 1.5rem;
+	}
+
+	nav ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 1rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	nav a {
+		/* Roomier hit target for touch, without changing layout much. */
+		display: inline-block;
+		padding: 0.25rem 0;
+	}
+</style>

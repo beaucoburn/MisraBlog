@@ -1,13 +1,22 @@
 ---
 import Layout from '../../../layouts/Layout.astro';
+import SiteHeader from '../../../components/SiteHeader.astro';
+import PostCard from '../../../components/PostCard.astro';
 import { sanityClient } from '../../../lib/sanity';
 import { CATEGORIES_QUERY, POSTS_BY_CATEGORY_QUERY } from '../../../lib/queries';
-import { LOCALES, UNTRANSLATED_POST_LABEL, type Locale } from '../../../lib/i18n';
-import LanguageSwitcher from '../../../components/LanguageSwitcher.astro';
+import {
+	LOCALES,
+	NO_POSTS_MESSAGE,
+	UNTRANSLATED_POST_LABEL,
+	localizedPaths,
+	type Locale,
+} from '../../../lib/i18n';
+import type { PostSummary } from '../../../lib/content';
 
 interface CategoryProps {
 	_id: string;
 	title: string;
+	description?: string | null;
 	slug: string;
 }
 
@@ -31,23 +40,73 @@ interface Props {
 }
 
 const { category, lang } = Astro.props;
-const posts = await sanityClient.fetch(POSTS_BY_CATEGORY_QUERY, { categoryId: category._id, lang });
+const posts: PostSummary[] = await sanityClient.fetch(POSTS_BY_CATEGORY_QUERY, {
+	categoryId: category._id,
+	lang,
+});
 
 // Category slugs are shared across locales (a single canonical `slug`
 // field, not per-language — see studio category schema), so the switcher
 // just swaps the /en//tr/ prefix rather than needing a translation.metadata
 // lookup (that's only required for posts, whose slugs can differ).
-const switcherLinks: Partial<Record<Locale, string>> = {};
-for (const locale of LOCALES) {
-	switcherLinks[locale] = `/${locale}/category/${category.slug}`;
-}
+const switcherLinks = localizedPaths(`category/${category.slug}`);
 ---
-<Layout lang={lang} title={category.title}>
-	<LanguageSwitcher currentLang={lang} links={switcherLinks} slot="nav" />
+<Layout
+	lang={lang}
+	pageTitle={category.title}
+	description={category.description ?? undefined}
+>
+	<SiteHeader lang={lang} switcherLinks={switcherLinks} slot="nav" />
 	<h1>{category.title}</h1>
-	<ul>
-		{posts.map((p: { _id: string; slug: string; title: string }) => (
-			<li><a href={`/${lang}/post/${p.slug}`}>{p.title || UNTRANSLATED_POST_LABEL[lang]}</a></li>
-		))}
-	</ul>
+	{category.description && <p class="category-description">{category.description}</p>}
+	{posts.length > 0 ? (
+		<ul class="post-feed">
+			{posts.map((post) => (
+				<li>
+					{/*
+						A post with no title in this language is an untranslated
+						stub: it stays in the listing (rather than vanishing from
+						the category the author already tagged it with), but as a
+						plain labelled link — a card with no title, date-only text
+						and no excerpt would just look broken.
+					*/}
+					{post.title ? (
+						<PostCard lang={lang} post={post} />
+					) : (
+						<a class="post-feed__untranslated" href={`/${lang}/post/${post.slug}`}>
+							{UNTRANSLATED_POST_LABEL[lang]}
+						</a>
+					)}
+				</li>
+			))}
+		</ul>
+	) : (
+		<p>{NO_POSTS_MESSAGE[lang]}</p>
+	)}
 </Layout>
+
+<style>
+	h1 {
+		font-size: clamp(1.75rem, 6vw, 2.5rem);
+		line-height: 1.2;
+		margin: 0 0 0.5rem;
+	}
+
+	.category-description {
+		margin: 0 0 1rem;
+		overflow-wrap: break-word;
+	}
+
+	.post-feed {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.post-feed__untranslated {
+		display: inline-block;
+		padding: 1rem 0;
+		border-top: 1px solid #e2ddd4;
+		width: 100%;
+	}
+</style>

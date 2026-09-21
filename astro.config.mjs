@@ -5,6 +5,9 @@ import svelte from '@astrojs/svelte';
 
 // https://astro.build/config
 export default defineConfig({
+  // Needed for absolute canonical/OG URLs (see src/layouts/Layout.astro) —
+  // without this Astro falls back to http://localhost:4321 at build time.
+  site: 'https://misrablog.netlify.app',
   integrations: [svelte()],
   i18n: {
     // Keep in sync with src/lib/i18n.ts's LOCALES/DEFAULT_LOCALE.

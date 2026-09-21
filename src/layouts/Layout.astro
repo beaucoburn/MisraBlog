@@ -8,42 +8,73 @@
 //     (`aria-hidden`, `pointer-events: none`) so it never intercepts input
 //     or shows up to assistive tech.
 //   - `.content-box[data-bloom-keepout]` — inner content wrappers (nav,
-//     main) that sit above the bloom layer with an opaque background, and
-//     expose the `data-bloom-keepout` hook a future script will use to
-//     compute keep-out rects via `getBoundingClientRect()`.
+//     main, footer) that sit above the bloom layer with an opaque
+//     background, and expose the `data-bloom-keepout` hook a future script
+//     will use to compute keep-out rects via `getBoundingClientRect()`.
+//     The middle one is a real <main> element (landmark) rather than a
+//     div; that's a semantics upgrade only — the class/attribute hook the
+//     bloom layer keys off is unchanged.
 //
 // This file only builds the structural skeleton — no bloom JS/SVGs here.
-import type { Locale } from '../lib/i18n';
+import SiteFooter from '../components/SiteFooter.astro';
+import { SITE_TITLE, type Locale } from '../lib/i18n';
 
 interface Props {
 	lang: Locale;
-	title: string;
+	// Page-specific part of <title> only — the site name is appended here
+	// so no page has to remember to do it. Omitted on pages that *are* the
+	// site (the homepage), which get the bare site name.
+	pageTitle?: string;
+	// SEO/social meta. All optional: a page that has nothing truthful to
+	// say about itself renders no description rather than an empty tag.
+	description?: string;
+	ogType?: 'website' | 'article';
+	ogImage?: string;
 }
 
-const { lang, title } = Astro.props;
+const { lang, pageTitle, description, ogType = 'website', ogImage } = Astro.props;
+
+const fullTitle = pageTitle ? `${pageTitle} · ${SITE_TITLE}` : SITE_TITLE;
 ---
 
 <html lang={lang}>
 	<head>
 		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<link rel="icon" href="/favicon.ico" />
 		<meta name="generator" content={Astro.generator} />
-		<title>{title}</title>
+		<title>{fullTitle}</title>
+		<link rel="canonical" href={Astro.url} />
+		{description && (
+			<>
+				<meta name="description" content={description} />
+				<meta property="og:title" content={fullTitle} />
+				<meta property="og:description" content={description} />
+				<meta property="og:type" content={ogType} />
+				<meta property="og:url" content={Astro.url} />
+				{ogImage && <meta property="og:image" content={ogImage} />}
+			</>
+		)}
 	</head>
 	<body>
 		<div class="bloom-layer" aria-hidden="true"></div>
 		<div class="content-box" data-bloom-keepout>
 			<slot name="nav" />
 		</div>
-		<div class="content-box" data-bloom-keepout>
+		<main class="content-box" data-bloom-keepout>
 			<slot />
+		</main>
+		<div class="content-box" data-bloom-keepout>
+			<SiteFooter lang={lang} />
 		</div>
 	</body>
 </html>
 
 <style is:global>
+	/* Neutral, high-contrast base only. The author's pastel (light
+	   pink/purple) palette is a later pass — whatever lands then still has
+	   to clear WCAG AA contrast against the text colors below. */
 	*,
 	*::before,
 	*::after {
@@ -52,6 +83,29 @@ const { lang, title } = Astro.props;
 
 	body {
 		margin: 0;
+		/* Vertical only — the content boxes stay free to run edge to edge on
+		   a phone, per the no-fixed-min-width rule for .content-box. */
+		padding: 1rem 0;
+		background: #f3f0ea;
+		color: #1f1c1a;
+		font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+		line-height: 1.6;
+	}
+
+	/* Nothing may force horizontal scrolling on a narrow screen. */
+	img {
+		max-width: 100%;
+		height: auto;
+	}
+
+	a {
+		color: #1b4965;
+	}
+
+	/* Reinforce (never remove) the default focus ring. */
+	:focus-visible {
+		outline: 3px solid #1b4965;
+		outline-offset: 2px;
 	}
 </style>
 
@@ -67,6 +121,13 @@ const { lang, title } = Astro.props;
 		position: relative;
 		z-index: 1;
 		background: #fff;
-		padding: 1rem;
+		/* Fluid padding and a max-width rather than a fixed width: the box
+		   goes full-bleed on a phone and becomes an inset card on wider
+		   screens, where the surrounding page margin is the area the future
+		   bloom trail gets to fill. */
+		padding: clamp(1rem, 4vw, 2rem);
+		width: 100%;
+		max-width: 48rem;
+		margin: 0 auto 1rem;
 	}
 </style>

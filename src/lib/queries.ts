@@ -5,8 +5,45 @@ export const CATEGORIES_QUERY = /* groq */ `
   *[_type == "category"] {
     _id,
     "title": coalesce(title[language == $lang][0].value, title[language == "en"][0].value),
+    "description": coalesce(description[language == $lang][0].value, description[language == "en"][0].value),
     "slug": slug.current
   } | order(title asc)
+`
+
+// Shared card projection for the listing views (homepage feed + category
+// listing), so those two can't drift apart. `excerpt` and `coverImage` are
+// optional post fields added after content already existed, so both come
+// back null for older documents and every consumer must render around
+// their absence.
+//
+// Deliberately does NOT select `body`: a card only ever shows `excerpt`,
+// and pulling each post's full Portable Text body into a listing just to
+// truncate it into a preview would be wasted payload. A post with no
+// excerpt yet simply renders without one.
+const POST_CARD_PROJECTION = /* groq */ `
+  _id,
+  title,
+  "slug": slug.current,
+  publishedAt,
+  excerpt,
+  coverImage { asset->{ url }, hotspot, alt },
+  categories[]-> {
+    _id,
+    "title": coalesce(title[language == $lang][0].value, title[language == "en"][0].value),
+    "slug": slug.current
+  }
+`
+
+// The homepage feed: every translated post in the visitor's language,
+// newest first. Untranslated stubs are excluded here (unlike the category
+// listing, which still links them so a reader browsing a category doesn't
+// see the post silently vanish) — an empty-bodied stub has nothing to show
+// in a card. Same "translated = non-empty body" criterion used on the post
+// detail page.
+export const ALL_POSTS_QUERY = /* groq */ `
+  *[_type == "post" && language == $lang && defined(body) && count(body) > 0] | order(publishedAt desc) {
+    ${POST_CARD_PROJECTION}
+  }
 `
 
 // Every post exists as a document in both languages (see
@@ -15,10 +52,7 @@ export const CATEGORIES_QUERY = /* groq */ `
 // or it will return both language variants of each post.
 export const POSTS_BY_CATEGORY_QUERY = /* groq */ `
   *[_type == "post" && references($categoryId) && language == $lang] | order(publishedAt desc) {
-    _id,
-    title,
-    "slug": slug.current,
-    publishedAt
+    ${POST_CARD_PROJECTION}
   }
 `
 
@@ -40,6 +74,13 @@ export const POST_BY_SLUG_QUERY = /* groq */ `
     title,
     "slug": slug.current,
     publishedAt,
+    excerpt,
+    coverImage { asset->{ url }, hotspot, alt },
+    categories[]-> {
+      _id,
+      "title": coalesce(title[language == $lang][0].value, title[language == "en"][0].value),
+      "slug": slug.current
+    },
     body,
     language
   }

@@ -1,0 +1,41 @@
+---
+// Static site copy, not CMS content — one prerendered page per locale, no
+// Sanity fetch. The body is a deliberate placeholder: the author's real
+// bio hasn't been written yet, and nothing here should invent one.
+import Layout from '../../layouts/Layout.astro';
+import SiteHeader from '../../components/SiteHeader.astro';
+import {
+	ABOUT_LABEL,
+	ABOUT_PLACEHOLDER_BODY,
+	LOCALES,
+	localizedPaths,
+	type Locale,
+} from '../../lib/i18n';
+
+export function getStaticPaths() {
+	return LOCALES.map((lang) => ({
+		params: { lang },
+		props: { lang },
+	}));
+}
+
+interface Props {
+	lang: Locale;
+}
+
+const { lang } = Astro.props;
+---
+<Layout lang={lang} pageTitle={ABOUT_LABEL[lang]}>
+	<SiteHeader lang={lang} switcherLinks={localizedPaths('about')} slot="nav" />
+	<h1>{ABOUT_LABEL[lang]}</h1>
+	<!-- TODO(content): replace with real bio from the friend -->
+	<p>{ABOUT_PLACEHOLDER_BODY[lang]}</p>
+</Layout>
+
+<style>
+	h1 {
+		font-size: clamp(1.75rem, 6vw, 2.5rem);
+		line-height: 1.2;
+		margin: 0 0 0.5rem;
+	}
+</style>

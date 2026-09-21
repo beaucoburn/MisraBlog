@@ -1,0 +1,28 @@
+---
+// Rendered by Layout.astro on every page (inside its own content box), so
+// individual pages never have to remember to include it.
+//
+// The copyright line is the site name, which is a proper name and reads
+// the same in both locales — nothing here needs translating yet.
+import { SITE_TITLE, type Locale } from '../lib/i18n';
+
+interface Props {
+  lang: Locale;
+}
+
+const { lang } = Astro.props;
+const year = new Date().getFullYear();
+---
+<footer class="site-footer" lang={lang}>
+	<p class="site-footer__copyright">© {year} {SITE_TITLE}</p>
+	<!-- TODO(content): add Instagram link once we have the handle -->
+</footer>
+
+<style>
+	.site-footer__copyright {
+		margin: 0;
+		font-size: 0.875rem;
+		/* Dark enough for AA contrast on the white content box. */
+		color: #4a4540;
+	}
+</style>

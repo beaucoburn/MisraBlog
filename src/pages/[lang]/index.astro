@@ -1,7 +1,18 @@
 ---
 import Layout from '../../layouts/Layout.astro';
-import CategoryNav from '../../components/CategoryNav.astro';
-import { LOCALES, type Locale } from '../../lib/i18n';
+import SiteHeader from '../../components/SiteHeader.astro';
+import PostCard from '../../components/PostCard.astro';
+import { sanityClient } from '../../lib/sanity';
+import { ALL_POSTS_QUERY } from '../../lib/queries';
+import {
+	LATEST_POSTS_HEADING,
+	LOCALES,
+	NO_POSTS_MESSAGE,
+	SITE_TITLE,
+	localizedPaths,
+	type Locale,
+} from '../../lib/i18n';
+import type { PostSummary } from '../../lib/content';
 
 export function getStaticPaths() {
 	return LOCALES.map((lang) => ({
@@ -15,9 +26,47 @@ interface Props {
 }
 
 const { lang } = Astro.props;
----
 
-<Layout lang={lang} title="Astro">
-	<CategoryNav lang={lang} slot="nav" />
-	<h1>Astro</h1>
+// Untranslated stubs are filtered out in the query itself — the feed is
+// the visitor's language only, and an empty-bodied stub has nothing to put
+// on a card.
+const posts: PostSummary[] = await sanityClient.fetch(ALL_POSTS_QUERY, { lang });
+
+// No `pageTitle`: the homepage *is* the site, so it gets the bare site
+// name as its <title> rather than "Something · Bir Misra Daha". No
+// `description` either — there's nothing to say about the author yet that
+// wouldn't be invented.
+---
+<Layout lang={lang}>
+	<SiteHeader lang={lang} switcherLinks={localizedPaths()} slot="nav" />
+	<h1>{SITE_TITLE}</h1>
+	<h2>{LATEST_POSTS_HEADING[lang]}</h2>
+	{posts.length > 0 ? (
+		<ul class="post-feed">
+			{posts.map((post) => (
+				<li><PostCard lang={lang} post={post} headingLevel={3} /></li>
+			))}
+		</ul>
+	) : (
+		<p>{NO_POSTS_MESSAGE[lang]}</p>
+	)}
 </Layout>
+
+<style>
+	h1 {
+		font-size: clamp(1.75rem, 6vw, 2.5rem);
+		line-height: 1.2;
+		margin: 0 0 0.25rem;
+	}
+
+	h2 {
+		font-size: clamp(1.125rem, 3vw, 1.375rem);
+		margin: 1.5rem 0 0;
+	}
+
+	.post-feed {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+</style>

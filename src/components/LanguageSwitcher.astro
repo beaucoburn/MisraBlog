@@ -1,6 +1,7 @@
 ---
-// Functional-only language switcher — no styling/visual design (that's
-// separate, later work per CLAUDE.md's daisy-motif/design phase).
+// Functional language switcher — no visual design (that's separate, later
+// work per CLAUDE.md's daisy-motif/design phase); the only CSS below is
+// the layout needed to keep it from overflowing a narrow screen.
 //
 // `links` maps every locale (including the current one) to the href of
 // the equivalent page in that locale. Callers are responsible for
@@ -27,3 +28,20 @@ const otherLocales = LOCALES.filter((locale) => locale !== currentLang && links[
     ))}
   </ul>
 </nav>
+
+<style>
+  ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  a {
+    display: inline-block;
+    padding: 0.25rem 0;
+    text-transform: uppercase;
+  }
+</style>

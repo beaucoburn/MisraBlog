@@ -3,14 +3,25 @@
 // GROQ query itself resolves the internationalized-array title down to a
 // plain string, so the fixture only needs the flat shape below).
 
-export type CategoryFixture = { _id: string; title: string; slug: string };
-export type PostFixture = { _id: string; title: string; slug: string; publishedAt: string };
+export type CategoryFixture = { _id: string; title: string; slug: string; description?: string | null };
+export type PostFixture = {
+  _id: string;
+  title: string;
+  slug: string;
+  publishedAt: string;
+  // Optional post-schema fields (added after content already existed), so
+  // every fixture below deliberately exercises one of the two states:
+  // filled in, or absent entirely.
+  excerpt?: string | null;
+  coverImage?: { asset?: { url?: string } | null; hotspot?: unknown; alt?: string | null } | null;
+  categories?: CategoryFixture[] | null;
+};
 
 export const CATEGORY_FIXTURES: CategoryFixture[] = [
-  { _id: 'category-art', title: 'Art', slug: 'art' },
-  { _id: 'category-cooking', title: 'Cooking', slug: 'cooking' },
-  { _id: 'category-music', title: 'Music', slug: 'music' },
-  { _id: 'category-writing', title: 'Writing', slug: 'writing' },
+  { _id: 'category-art', title: 'Art', slug: 'art', description: null },
+  { _id: 'category-cooking', title: 'Cooking', slug: 'cooking', description: null },
+  { _id: 'category-music', title: 'Music', slug: 'music', description: 'Fixture category description.' },
+  { _id: 'category-writing', title: 'Writing', slug: 'writing', description: null },
 ];
 
 export const POST_FIXTURES: PostFixture[] = [
@@ -19,7 +30,34 @@ export const POST_FIXTURES: PostFixture[] = [
     title: 'A fixture post about music',
     slug: 'a-fixture-post-about-music',
     publishedAt: '2026-01-01T00:00:00Z',
+    excerpt: 'A short fixture excerpt.',
+    coverImage: {
+      asset: { url: 'https://cdn.example.test/fixture-cover.jpg' },
+      hotspot: null,
+      alt: 'Fixture cover alt text',
+    },
+    categories: [{ _id: 'category-music', title: 'Music', slug: 'music' }],
   },
+];
+
+// The other half of the optional-field matrix: a real, translated post
+// that predates `excerpt`/`coverImage` and has neither, plus no categories.
+// Cards must render it without an empty summary line or a broken-image box.
+export const POST_WITHOUT_OPTIONAL_FIELDS_FIXTURE: PostFixture = {
+  _id: 'post-fixture-2',
+  title: 'A fixture post with no extras',
+  slug: 'a-fixture-post-with-no-extras',
+  publishedAt: '2026-02-02T00:00:00Z',
+  excerpt: null,
+  coverImage: null,
+  categories: null,
+};
+
+// What the homepage feed gets back from ALL_POSTS_QUERY: translated posts
+// only (the query filters untranslated stubs out), newest first.
+export const FEED_POST_FIXTURES: PostFixture[] = [
+  POST_WITHOUT_OPTIONAL_FIELDS_FIXTURE,
+  POST_FIXTURES[0],
 ];
 
 // A category-listing entry for a post that hasn't been translated into the
@@ -31,6 +69,9 @@ export const UNTRANSLATED_POST_LISTING_FIXTURE: PostFixture = {
   title: '',
   slug: 'papatyalar-hakkinda-bir-yazi',
   publishedAt: '2026-01-01T00:00:00Z',
+  excerpt: null,
+  coverImage: null,
+  categories: [{ _id: 'category-music', title: 'Müzik', slug: 'music' }],
 };
 
 // A post document as returned by POST_BY_SLUG_QUERY: one document per
@@ -41,6 +82,9 @@ export type PostDocFixture = {
   title: string;
   slug: string;
   publishedAt: string;
+  excerpt: string | null;
+  coverImage: { asset?: { url?: string } | null; hotspot?: unknown; alt?: string | null } | null;
+  categories: CategoryFixture[] | null;
   body: Array<{ _type: 'block'; children: Array<{ _type: 'span'; text: string }> }>;
   language: 'en' | 'tr';
 };
@@ -51,6 +95,13 @@ export const POST_EN_TRANSLATED_FIXTURE: PostDocFixture = {
   title: 'A Post About Daisies',
   slug: 'a-post-about-daisies',
   publishedAt: '2026-01-01T00:00:00Z',
+  excerpt: 'Where the daisies grow.',
+  coverImage: {
+    asset: { url: 'https://cdn.example.test/daisies.jpg' },
+    hotspot: null,
+    alt: null,
+  },
+  categories: [{ _id: 'category-writing', title: 'Writing', slug: 'writing' }],
   body: [
     {
       _type: 'block',
@@ -70,6 +121,9 @@ export const POST_TR_UNTRANSLATED_FIXTURE: PostDocFixture = {
   title: '',
   slug: 'papatyalar-hakkinda-bir-yazi',
   publishedAt: '2026-01-01T00:00:00Z',
+  excerpt: null,
+  coverImage: null,
+  categories: [{ _id: 'category-writing', title: 'Yazı', slug: 'writing' }],
   body: [],
   language: 'tr',
 };

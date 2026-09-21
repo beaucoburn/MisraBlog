@@ -17,3 +17,23 @@ const categories = await sanityClient.fetch(CATEGORIES_QUERY, { lang });
 		))}
 	</ul>
 </nav>
+
+<style>
+	/* Layout only (the visual design pass is still to come): a wrapping
+	   row so a long category list reflows instead of overflowing a narrow
+	   screen. Scoped here rather than in SiteHeader because Astro's scoped
+	   styles don't reach into a child component's markup. */
+	ul {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.25rem 1rem;
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	a {
+		display: inline-block;
+		padding: 0.25rem 0;
+	}
+</style>
