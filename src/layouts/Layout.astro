@@ -80,9 +80,23 @@ const fullTitle = pageTitle ? `${pageTitle} · ${SITE_TITLE}` : SITE_TITLE;
 </html>
 
 <style is:global>
-	/* Neutral, high-contrast base only. The author's pastel (light
-	   pink/purple) palette is a later pass — whatever lands then still has
-	   to clear WCAG AA contrast against the text colors below. */
+	/* Site palette ("Rose garden": pink leads, lilac on category chips).
+	   Every color on the site comes from these tokens, so retuning the
+	   palette is an edit here only. Text/link/muted/chip-text pairs were
+	   checked against WCAG AA (4.5:1) on the box and chip backgrounds:
+	   text 15.2:1, link 7.6:1, muted 6.6:1, chip text 6.5:1 — re-check if
+	   any of these change. */
+	:root {
+		--color-page: #f8e6ee;
+		--color-box: #fffafc;
+		--color-text: #2b2027;
+		--color-muted: #6b5562;
+		--color-link: #8c2f5a;
+		--color-rule: #edd2de;
+		--color-chip: #efe5f7;
+		--color-chip-line: #d8c6ec;
+	}
+
 	*,
 	*::before,
 	*::after {
@@ -94,8 +108,8 @@ const fullTitle = pageTitle ? `${pageTitle} · ${SITE_TITLE}` : SITE_TITLE;
 		/* Vertical only — the content boxes stay free to run edge to edge on
 		   a phone, per the no-fixed-min-width rule for .content-box. */
 		padding: 1rem 0;
-		background: #f3f0ea;
-		color: #1f1c1a;
+		background: var(--color-page);
+		color: var(--color-text);
 		font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
 		line-height: 1.6;
 	}
@@ -107,12 +121,12 @@ const fullTitle = pageTitle ? `${pageTitle} · ${SITE_TITLE}` : SITE_TITLE;
 	}
 
 	a {
-		color: #1b4965;
+		color: var(--color-link);
 	}
 
 	/* Reinforce (never remove) the default focus ring. */
 	:focus-visible {
-		outline: 3px solid #1b4965;
+		outline: 3px solid var(--color-link);
 		outline-offset: 2px;
 	}
 </style>
@@ -128,7 +142,7 @@ const fullTitle = pageTitle ? `${pageTitle} · ${SITE_TITLE}` : SITE_TITLE;
 	.content-box {
 		position: relative;
 		z-index: 1;
-		background: #fff;
+		background: var(--color-box);
 		/* Fluid padding and a max-width rather than a fixed width: the box
 		   goes full-bleed on a phone and becomes an inset card on wider
 		   screens, where the surrounding page margin is the area the future
