@@ -3,7 +3,10 @@
 // individual pages never have to remember to include it.
 //
 // The copyright line is the site name, which is a proper name and reads
-// the same in both locales — nothing here needs translating yet.
+// the same in both locales. The photo credit is the attribution Unsplash
+// asks for on the homepage hero photo; its wording is localized, but the
+// photographer's name and the Unsplash links (with their referral params)
+// are kept exactly as Unsplash provides them.
 import { SITE_TITLE, type Locale } from '../lib/i18n';
 
 interface Props {
@@ -12,9 +15,21 @@ interface Props {
 
 const { lang } = Astro.props;
 const year = new Date().getFullYear();
+
+const photographerUrl =
+  'https://unsplash.com/@ivoafr?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText';
+const photoUrl =
+  'https://unsplash.com/photos/library-with-stairs-and-shelves-Lg9NLmu4B_A?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText';
 ---
 <footer class="site-footer" lang={lang}>
 	<p class="site-footer__copyright">© {year} {SITE_TITLE}</p>
+	<p class="site-footer__credit">
+		{lang === 'tr' ? (
+			<>Fotoğraf: <a href={photographerUrl}>Ivo Rainha</a>, <a href={photoUrl}>Unsplash</a></>
+		) : (
+			<>Photo by <a href={photographerUrl}>Ivo Rainha</a> on <a href={photoUrl}>Unsplash</a></>
+		)}
+	</p>
 	<!-- TODO(content): add Instagram link once we have the handle -->
 </footer>
 
@@ -23,10 +38,14 @@ const year = new Date().getFullYear();
 		text-align: center;
 	}
 
-	.site-footer__copyright {
+	.site-footer p {
 		margin: 0;
 		font-size: 0.875rem;
 		/* Dark enough for AA contrast on the white content box. */
 		color: #4a4540;
+	}
+
+	.site-footer__credit {
+		margin-top: 0.25rem;
 	}
 </style>

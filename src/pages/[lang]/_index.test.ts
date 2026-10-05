@@ -80,14 +80,29 @@ test('the homepage asks for a capped number of latest posts and lays them out as
   expect(result).toContain('post-card--tile');
 });
 
-test('the homepage has a centered-logo header and a hero, falling back cleanly with no images yet', async () => {
+test('the homepage has a centered-logo header and a hero matching whichever site images exist', async () => {
   feedPosts = FEED_POST_FIXTURES;
+  const { heroImage, logoImage } = await import('../../lib/siteImages');
   const result = await renderHome('en');
 
-  // No src/assets/logo.* or hero.* checked in yet: wordmark + placeholder.
-  expect(result).toContain('site-header__wordmark');
-  expect(result).toContain('class="hero');
-  expect(result).toContain('hero__placeholder');
+  // Each image is a drop-in file under src/assets/; without one, the
+  // header falls back to a wordmark and the hero to a placeholder band.
+  if (logoImage) {
+    expect(result).not.toContain('site-header__wordmark');
+  } else {
+    expect(result).toContain('site-header__wordmark');
+  }
+
+  const hero = result.match(/<section class="hero[\s\S]*?<\/section>/)?.[0] ?? '';
+  expect(hero).not.toBe('');
+  if (heroImage) {
+    expect(hero).toContain('<img');
+    expect(hero).toContain('2400w');
+    expect(hero).not.toContain('hero__placeholder');
+  } else {
+    expect(hero).toContain('hero__placeholder');
+  }
+
   // The visible site name lives in the header; the h1 is still present.
   expect(result).toMatch(/<h1[^>]*>Bir Misra Daha<\/h1>/);
 });
