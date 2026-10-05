@@ -30,9 +30,12 @@ interface Props {
 	description?: string;
 	ogType?: 'website' | 'article';
 	ogImage?: string;
+	// Widens <main> from reading width to the full site width, for pages
+	// whose main content is a grid (the homepage) rather than prose.
+	wide?: boolean;
 }
 
-const { lang, pageTitle, description, ogType = 'website', ogImage } = Astro.props;
+const { lang, pageTitle, description, ogType = 'website', ogImage, wide = false } = Astro.props;
 
 const fullTitle = pageTitle ? `${pageTitle} · ${SITE_TITLE}` : SITE_TITLE;
 ---
@@ -59,13 +62,18 @@ const fullTitle = pageTitle ? `${pageTitle} · ${SITE_TITLE}` : SITE_TITLE;
 	</head>
 	<body>
 		<div class="bloom-layer" aria-hidden="true"></div>
-		<div class="content-box" data-bloom-keepout>
+		<div class="content-box content-box--wide" data-bloom-keepout>
 			<slot name="nav" />
 		</div>
-		<main class="content-box" data-bloom-keepout>
+		{Astro.slots.has('hero') && (
+			<div class="content-box content-box--wide content-box--flush" data-bloom-keepout>
+				<slot name="hero" />
+			</div>
+		)}
+		<main class:list={['content-box', { 'content-box--wide': wide }]} data-bloom-keepout>
 			<slot />
 		</main>
-		<div class="content-box" data-bloom-keepout>
+		<div class="content-box content-box--wide" data-bloom-keepout>
 			<SiteFooter lang={lang} />
 		</div>
 	</body>
@@ -129,5 +137,18 @@ const fullTitle = pageTitle ? `${pageTitle} · ${SITE_TITLE}` : SITE_TITLE;
 		width: 100%;
 		max-width: 48rem;
 		margin: 0 auto 1rem;
+	}
+
+	/* Site-width boxes (header, hero, footer, and grid pages' <main>). Prose
+	   pages keep the narrower reading width above, centered under them. */
+	.content-box--wide {
+		max-width: 72rem;
+	}
+
+	/* For full-bleed media like the hero photo: no inner padding, and the
+	   image's corners are clipped to the box. */
+	.content-box--flush {
+		padding: 0;
+		overflow: hidden;
 	}
 </style>

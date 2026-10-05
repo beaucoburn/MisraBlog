@@ -1,7 +1,11 @@
 ---
 // The one header for every page, so navigation doesn't differ between the
-// homepage, a category listing and a post (it used to: CategoryNav was
-// homepage-only, LanguageSwitcher was everywhere else).
+// homepage, a category listing and a post.
+//
+// Layout: the logo sits centered on its own row, with a single centered
+// nav bar beneath it (categories, then About, then the language switcher).
+// The logo is src/assets/logo.* when present (see lib/siteImages.ts), and
+// falls back to the site name as a text wordmark until it's provided.
 //
 // `switcherLinks` is a prop rather than something computed here because
 // only the page knows how to reach itself in the other locale:
@@ -9,8 +13,10 @@
 //     locale segment, so `localizedPaths()` is enough.
 //   - post pages: slugs differ per language, so the sibling has to be
 //     resolved through translation.metadata first.
+import { Image } from 'astro:assets';
 import CategoryNav from './CategoryNav.astro';
 import LanguageSwitcher from './LanguageSwitcher.astro';
+import { logoImage } from '../lib/siteImages';
 import {
   ABOUT_LABEL,
   HOME_LINK_LABEL,
@@ -27,10 +33,14 @@ interface Props {
 const { lang, switcherLinks } = Astro.props;
 ---
 <header class="site-header">
-	<a class="site-header__title" href={`/${lang}/`} aria-label={`${SITE_TITLE} — ${HOME_LINK_LABEL[lang]}`}>
-		{SITE_TITLE}
+	<a class="site-header__logo" href={`/${lang}/`} aria-label={`${SITE_TITLE} — ${HOME_LINK_LABEL[lang]}`}>
+		{logoImage ? (
+			<Image src={logoImage} alt="" height={96} loading="eager" />
+		) : (
+			<span class="site-header__wordmark">{SITE_TITLE}</span>
+		)}
 	</a>
-	<div class="site-header__navs">
+	<div class="site-header__bar">
 		<CategoryNav lang={lang} />
 		<nav aria-label={PAGES_NAV_LABEL[lang]}>
 			<ul>
@@ -42,38 +52,56 @@ const { lang, switcherLinks } = Astro.props;
 </header>
 
 <style>
-	/* Wrapping flex rather than a hamburger menu: no JS, and it degrades
-	   into stacked rows on a ~375px screen instead of overflowing. */
 	.site-header {
 		display: flex;
-		flex-wrap: wrap;
-		align-items: baseline;
-		justify-content: space-between;
-		gap: 0.5rem 1.5rem;
+		flex-direction: column;
+		align-items: center;
+		gap: 1rem;
+		text-align: center;
 	}
 
-	.site-header__title {
-		font-size: clamp(1.25rem, 4vw, 1.75rem);
-		font-weight: 700;
+	.site-header__logo {
+		display: inline-block;
 		color: inherit;
 		text-decoration: none;
 	}
 
-	.site-header__title:hover,
-	.site-header__title:focus-visible {
+	.site-header__logo img {
+		display: block;
+		width: auto;
+		max-height: clamp(3.5rem, 12vw, 6rem);
+	}
+
+	.site-header__wordmark {
+		font-size: clamp(1.75rem, 7vw, 2.75rem);
+		font-weight: 700;
+		line-height: 1.1;
+	}
+
+	.site-header__logo:hover .site-header__wordmark,
+	.site-header__logo:focus-visible .site-header__wordmark {
 		text-decoration: underline;
 	}
 
-	.site-header__navs {
+	/* One centered bar; wrapping flex rather than a hamburger menu, so no
+	   JS, and on a ~375px screen it reflows into centered rows instead of
+	   overflowing. The divider lines frame it as a "bar" without needing a
+	   background color the pastel pass will want to own. */
+	.site-header__bar {
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: center;
 		align-items: baseline;
 		gap: 0.25rem 1.5rem;
+		width: 100%;
+		padding: 0.5rem 0;
+		border-block: 1px solid #e2ddd4;
 	}
 
 	nav ul {
 		display: flex;
 		flex-wrap: wrap;
+		justify-content: center;
 		gap: 0.25rem 1rem;
 		margin: 0;
 		padding: 0;

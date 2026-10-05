@@ -1,7 +1,7 @@
 import { expect, test, vi } from 'vitest';
 import { CATEGORY_FIXTURES, FEED_POST_FIXTURES, POST_FIXTURES } from '../../lib/testFixtures';
 
-// Feed posts returned for ALL_POSTS_QUERY, swapped per test.
+// Feed posts returned for LATEST_POSTS_QUERY, swapped per test.
 let feedPosts: unknown[] = FEED_POST_FIXTURES;
 
 vi.mock('../../lib/sanity', () => ({
@@ -65,4 +65,29 @@ test('the homepage carries the shared header and footer', async () => {
   expect(result).toContain('href="/tr/about"');
   expect(result).toContain('href="/en/"');
   expect(result).toContain(`© ${new Date().getFullYear()} Bir Misra Daha`);
+});
+
+test('the homepage asks for a capped number of latest posts and lays them out as a grid', async () => {
+  feedPosts = FEED_POST_FIXTURES;
+  const { sanityClient } = await import('../../lib/sanity');
+  const result = await renderHome('en');
+
+  expect(sanityClient.fetch).toHaveBeenCalledWith(
+    expect.stringContaining('[0...$limit]'),
+    expect.objectContaining({ lang: 'en', limit: expect.any(Number) }),
+  );
+  expect(result).toContain('class="post-grid');
+  expect(result).toContain('post-card--tile');
+});
+
+test('the homepage has a centered-logo header and a hero, falling back cleanly with no images yet', async () => {
+  feedPosts = FEED_POST_FIXTURES;
+  const result = await renderHome('en');
+
+  // No src/assets/logo.* or hero.* checked in yet: wordmark + placeholder.
+  expect(result).toContain('site-header__wordmark');
+  expect(result).toContain('class="hero');
+  expect(result).toContain('hero__placeholder');
+  // The visible site name lives in the header; the h1 is still present.
+  expect(result).toMatch(/<h1[^>]*>Bir Misra Daha<\/h1>/);
 });

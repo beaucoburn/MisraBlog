@@ -17,16 +17,20 @@ interface Props {
   lang: Locale;
   post: PostSummary;
   headingLevel?: 2 | 3;
+  // `row` (default): thumbnail beside the text, for list views like the
+  // category listing. `tile`: thumbnail stacked on top at a fixed aspect
+  // ratio, so cards line up when placed in a grid (the homepage).
+  variant?: 'row' | 'tile';
 }
 
-const { lang, post, headingLevel = 2 } = Astro.props;
+const { lang, post, headingLevel = 2, variant = 'row' } = Astro.props;
 
 const Heading = `h${headingLevel}` as 'h2' | 'h3';
 const href = `/${lang}/post/${post.slug}`;
 const coverUrl = post.coverImage?.asset?.url;
 const categories = post.categories ?? [];
 ---
-<article class="post-card">
+<article class:list={['post-card', `post-card--${variant}`]}>
 	{coverUrl && (
 		<a class="post-card__thumb" href={href}>
 			<img src={coverUrl} alt={post.coverImage?.alt || post.title} loading="lazy" />
@@ -114,6 +118,29 @@ const categories = post.categories ?? [];
 		background: #f2f7fa;
 		font-size: 0.8125rem;
 		text-decoration: none;
+	}
+
+	/* Tile: everything stacked, the thumbnail full-width and cropped to a
+	   consistent shape. No top rule — the grid gap separates tiles. */
+	.post-card--tile {
+		flex-direction: column;
+		flex-wrap: nowrap;
+		height: 100%;
+		padding: 0;
+		border-top: none;
+	}
+
+	.post-card--tile .post-card__thumb {
+		width: 100%;
+	}
+
+	.post-card--tile .post-card__thumb img {
+		aspect-ratio: 3 / 2;
+		object-fit: cover;
+	}
+
+	.post-card--tile .post-card__text {
+		flex: 1 1 auto;
 	}
 
 	.post-card__chip:hover,

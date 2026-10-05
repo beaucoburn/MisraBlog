@@ -1,0 +1,50 @@
+---
+// Homepage hero photo, directly under the header's nav bar.
+//
+// The photo is src/assets/hero.* (see lib/siteImages.ts). Until it's
+// provided, a soft placeholder band holds the space so the page layout
+// already looks the way it will with the photo in.
+//
+// alt="" because the photo is decorative mood-setting; it doesn't carry
+// information a screen reader user would miss. Revisit if the chosen
+// photo turns out to say something (e.g. it's a portrait of the author).
+import { Image } from 'astro:assets';
+import { heroImage } from '../lib/siteImages';
+---
+<section class="hero">
+	{heroImage ? (
+		<Image
+			src={heroImage}
+			alt=""
+			widths={[640, 960, 1280, 1920]}
+			sizes="(min-width: 72rem) 72rem, 100vw"
+			loading="eager"
+			fetchpriority="high"
+		/>
+	) : (
+		<div class="hero__placeholder"></div>
+	)}
+</section>
+
+<style>
+	.hero img,
+	.hero__placeholder {
+		display: block;
+		width: 100%;
+		/* Wide banner on desktop, closer to 4:3 on a phone so the photo
+		   isn't reduced to a thin strip. */
+		aspect-ratio: 4 / 3;
+		object-fit: cover;
+	}
+
+	@media (min-width: 40rem) {
+		.hero img,
+		.hero__placeholder {
+			aspect-ratio: 21 / 9;
+		}
+	}
+
+	.hero__placeholder {
+		background: linear-gradient(135deg, #f6dbe4, #e4dbf3);
+	}
+</style>

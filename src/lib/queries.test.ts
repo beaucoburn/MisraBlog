@@ -67,9 +67,9 @@ test('POSTS_BY_CATEGORY_QUERY returns posts referencing the given category', asy
 // enough to catch a projection that silently stops selecting a field the
 // cards depend on.
 test('the listing queries select the card fields, filtered by language', async () => {
-  const { ALL_POSTS_QUERY, POSTS_BY_CATEGORY_QUERY } = await import('./queries');
+  const { LATEST_POSTS_QUERY, POSTS_BY_CATEGORY_QUERY } = await import('./queries');
 
-  for (const query of [ALL_POSTS_QUERY, POSTS_BY_CATEGORY_QUERY]) {
+  for (const query of [LATEST_POSTS_QUERY, POSTS_BY_CATEGORY_QUERY]) {
     expect(query).toContain('language == $lang');
     expect(query).toContain('excerpt');
     expect(query).toContain('coverImage');
@@ -79,10 +79,10 @@ test('the listing queries select the card fields, filtered by language', async (
   }
 });
 
-test('ALL_POSTS_QUERY excludes untranslated stubs by the same empty-body rule as the post page', async () => {
-  const { ALL_POSTS_QUERY } = await import('./queries');
+test('LATEST_POSTS_QUERY excludes untranslated stubs by the same empty-body rule as the post page', async () => {
+  const { LATEST_POSTS_QUERY } = await import('./queries');
 
-  expect(ALL_POSTS_QUERY).toContain('defined(body) && count(body) > 0');
+  expect(LATEST_POSTS_QUERY).toContain('defined(body) && count(body) > 0');
 });
 
 test('POSTS_BY_CATEGORY_QUERY still keeps untranslated stubs in the listing', async () => {
@@ -102,12 +102,12 @@ test('POST_BY_SLUG_QUERY selects the post detail extras', async () => {
   expect(POST_BY_SLUG_QUERY).toContain('body');
 });
 
-test('ALL_POSTS_QUERY returns feed-shaped posts, with optional fields possibly absent', async () => {
+test('LATEST_POSTS_QUERY returns feed-shaped posts, with optional fields possibly absent', async () => {
   const sanityClient = await getMockedSanityClient();
-  const { ALL_POSTS_QUERY } = await import('./queries');
+  const { LATEST_POSTS_QUERY } = await import('./queries');
   sanityClient.fetch.mockResolvedValueOnce(FEED_POST_FIXTURES);
 
-  const posts = await sanityClient.fetch(ALL_POSTS_QUERY, { lang: 'en' });
+  const posts = await sanityClient.fetch(LATEST_POSTS_QUERY, { lang: 'en' });
 
   expect(posts.length).toBeGreaterThan(0);
   for (const post of posts) {

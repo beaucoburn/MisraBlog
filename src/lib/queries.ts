@@ -34,14 +34,15 @@ const POST_CARD_PROJECTION = /* groq */ `
   }
 `
 
-// The homepage feed: every translated post in the visitor's language,
-// newest first. Untranslated stubs are excluded here (unlike the category
-// listing, which still links them so a reader browsing a category doesn't
-// see the post silently vanish) — an empty-bodied stub has nothing to show
+// The homepage grid: the newest $limit translated posts in the visitor's
+// language, capped so the homepage doesn't grow with the archive
+// (category pages are the way to browse everything). Untranslated stubs
+// are excluded here (unlike the category listing, which still links them
+// so a reader browsing a category doesn't see the post silently vanish) — an empty-bodied stub has nothing to show
 // in a card. Same "translated = non-empty body" criterion used on the post
 // detail page.
-export const ALL_POSTS_QUERY = /* groq */ `
-  *[_type == "post" && language == $lang && defined(body) && count(body) > 0] | order(publishedAt desc) {
+export const LATEST_POSTS_QUERY = /* groq */ `
+  *[_type == "post" && language == $lang && defined(body) && count(body) > 0] | order(publishedAt desc) [0...$limit] {
     ${POST_CARD_PROJECTION}
   }
 `

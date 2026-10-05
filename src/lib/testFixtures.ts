@@ -53,7 +53,7 @@ export const POST_WITHOUT_OPTIONAL_FIELDS_FIXTURE: PostFixture = {
   categories: null,
 };
 
-// What the homepage feed gets back from ALL_POSTS_QUERY: translated posts
+// What the homepage feed gets back from LATEST_POSTS_QUERY: translated posts
 // only (the query filters untranslated stubs out), newest first.
 export const FEED_POST_FIXTURES: PostFixture[] = [
   POST_WITHOUT_OPTIONAL_FIELDS_FIXTURE,
