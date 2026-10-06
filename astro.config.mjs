@@ -1,5 +1,5 @@
 // @ts-check
-import { defineConfig } from 'astro/config';
+import { defineConfig, fontProviders } from 'astro/config';
 
 import svelte from '@astrojs/svelte';
 
@@ -9,6 +9,28 @@ export default defineConfig({
   // without this Astro falls back to http://localhost:4321 at build time.
   site: 'https://misrablog.netlify.app',
   integrations: [svelte()],
+  // The brand typeface is Cormorant SC (the "Bir"/"Daha" lettering in the
+  // logo), used for all site text outside post bodies. It's loaded as
+  // Cormorant Garamond and set in small caps with CSS (see Layout.astro)
+  // rather than as the "Cormorant SC" family: that family's small-cap
+  // glyphs ignore Turkish casing and draw dotted i and dotless ı both as
+  // a plain I ("Müzik" came out as MÜZIK), while CSS small caps follow the
+  // page's lang and give MÜZİK. Same design, identical in English.
+  //
+  // Astro downloads it from Google Fonts at build time and serves it from
+  // the site itself, so visitors' browsers never contact Google. latin-ext
+  // covers Turkish (ğ, ş, ı, İ).
+  fonts: [
+    {
+      provider: fontProviders.google(),
+      name: 'Cormorant Garamond',
+      cssVariable: '--font-cormorant',
+      weights: [500, 600, 700],
+      styles: ['normal'],
+      subsets: ['latin', 'latin-ext'],
+      fallbacks: ['Georgia', 'serif'],
+    },
+  ],
   i18n: {
     // Keep in sync with src/lib/i18n.ts's LOCALES/DEFAULT_LOCALE.
     locales: ['en', 'tr'],

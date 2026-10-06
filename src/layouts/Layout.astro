@@ -16,6 +16,7 @@
 //     bloom layer keys off is unchanged.
 //
 // This file only builds the structural skeleton — no bloom JS/SVGs here.
+import { Font } from 'astro:assets';
 import SiteFooter from '../components/SiteFooter.astro';
 import { SITE_TITLE, type Locale } from '../lib/i18n';
 
@@ -64,6 +65,7 @@ const hasLinkPreview = Boolean(description) || !pageTitle;
 		<link rel="manifest" href="/site.webmanifest" />
 		<meta name="theme-color" content="#f8e6ee" />
 		<meta name="generator" content={Astro.generator} />
+		<Font cssVariable="--font-cormorant" preload />
 		<title>{fullTitle}</title>
 		<link rel="canonical" href={Astro.url} />
 		{description && <meta name="description" content={description} />}
@@ -124,6 +126,13 @@ const hasLinkPreview = Boolean(description) || !pageTitle;
 		/* Shared so children can line up with (or bleed past) a box's edge,
 		   e.g. the header's nav bar sitting flush on the box's bottom edge. */
 		--content-box-padding: clamp(1rem, 4vw, 2rem);
+
+		/* Brand face for everything outside post bodies (set in small caps on
+		   <body>; see astro.config.mjs for why it isn't the SC family); the
+		   reading face is for long-form text (post pages opt into it on
+		   their <article>). */
+		--font-brand: var(--font-cormorant);
+		--font-reading: system-ui, -apple-system, 'Segoe UI', sans-serif;
 	}
 
 	*,
@@ -139,7 +148,13 @@ const hasLinkPreview = Boolean(description) || !pageTitle;
 		padding: 1rem 0;
 		background: var(--color-page);
 		color: var(--color-text);
-		font-family: system-ui, -apple-system, 'Segoe UI', sans-serif;
+		font-family: var(--font-brand);
+		font-variant-caps: small-caps;
+		/* Cormorant's small capitals run small and thin next to a system
+		   sans, so the brand face gets a larger base size and a medium
+		   weight. Post bodies reset all of this (see post/[slug].astro). */
+		font-size: 1.125rem;
+		font-weight: 500;
 		line-height: 1.6;
 	}
 

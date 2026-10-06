@@ -140,6 +140,15 @@ if (post) {
 </Layout>
 
 <style>
+	/* The post itself stays in the reading face; the rest of the site uses
+	   the brand face set on <body> in Layout.astro. */
+	.post {
+		font-family: var(--font-reading);
+		font-variant-caps: normal;
+		font-size: 1rem;
+		font-weight: 400;
+	}
+
 	h1 {
 		font-size: clamp(1.75rem, 6vw, 2.5rem);
 		line-height: 1.2;
