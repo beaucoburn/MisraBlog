@@ -9,10 +9,15 @@ async function renderFooter(lang: string) {
 }
 
 test('renders the copyright line, identically in both locales', async () => {
-  const expected = `© ${new Date().getFullYear()} Bir Misra Daha`;
+  const { wordmarkImage } = await import('../lib/siteImages');
+  // The name is the brand wordmark (alt text carries it) when the file
+  // exists, plain text otherwise.
+  const expected = wordmarkImage
+    ? new RegExp(`© ${new Date().getFullYear()}\\s*<img[^>]*alt="Bir Misra Daha"`)
+    : new RegExp(`© ${new Date().getFullYear()}\\s*Bir Misra Daha`);
 
-  expect(await renderFooter('en')).toContain(expected);
-  expect(await renderFooter('tr')).toContain(expected);
+  expect(await renderFooter('en')).toMatch(expected);
+  expect(await renderFooter('tr')).toMatch(expected);
 });
 
 test('credits the hero photo with Unsplash attribution links in both locales', async () => {

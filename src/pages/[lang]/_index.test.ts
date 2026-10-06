@@ -64,7 +64,8 @@ test('the homepage carries the shared header and footer', async () => {
   expect(result).toContain('aria-label="Categories"');
   expect(result).toContain('href="/tr/about"');
   expect(result).toContain('href="/en/"');
-  expect(result).toContain(`© ${new Date().getFullYear()} Bir Misra Daha`);
+  expect(result).toContain('class="site-footer__copyright"');
+  expect(result).toContain(`© ${new Date().getFullYear()}`);
 });
 
 test('the homepage asks for a capped number of latest posts and lays them out as a grid', async () => {

@@ -3,11 +3,15 @@
 // individual pages never have to remember to include it.
 //
 // The copyright line is the site name, which is a proper name and reads
-// the same in both locales. The photo credit is the attribution Unsplash
+// the same in both locales. It's shown as the brand wordmark
+// (src/assets/logo/logo-wordmark.*, see lib/siteImages.ts) with the name as
+// its alt text, falling back to plain text if the file is absent. The photo credit is the attribution Unsplash
 // asks for on the homepage hero photo; its wording is localized, but the
 // photographer's name and the Unsplash links (with their referral params)
 // are kept exactly as Unsplash provides them.
+import { Image } from 'astro:assets';
 import { SITE_TITLE, type Locale } from '../lib/i18n';
+import { wordmarkImage } from '../lib/siteImages';
 
 interface Props {
   lang: Locale;
@@ -22,7 +26,19 @@ const photoUrl =
   'https://unsplash.com/photos/library-with-stairs-and-shelves-Lg9NLmu4B_A?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText';
 ---
 <footer class="site-footer" lang={lang}>
-	<p class="site-footer__copyright">© {year} {SITE_TITLE}</p>
+	<p class="site-footer__copyright">
+		© {year}
+		{wordmarkImage ? (
+			<Image
+				src={wordmarkImage}
+				alt={SITE_TITLE}
+				height={56}
+				format={wordmarkImage.format === 'svg' ? 'svg' : undefined}
+			/>
+		) : (
+			SITE_TITLE
+		)}
+	</p>
 	<p class="site-footer__credit">
 		{lang === 'tr' ? (
 			<>Fotoğraf: <a href={photographerUrl}>Ivo Rainha</a>, <a href={photoUrl}>Unsplash</a></>
@@ -43,6 +59,20 @@ const photoUrl =
 		font-size: 0.875rem;
 		/* Dark enough for AA contrast on the white content box. */
 		color: var(--color-muted);
+	}
+
+	/* The wordmark sits in line with "© year", big enough that its small
+	   capitals ("BIR", "DAHA") stay legible. */
+	.site-footer__copyright {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		gap: 0.5rem;
+	}
+
+	.site-footer__copyright img {
+		width: auto;
+		height: 1.75rem;
 	}
 
 	.site-footer__credit {
