@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {isSlugUniqueInLanguage} from './slugUniqueInLanguage'
 
 export default defineType({
   name: 'post',
@@ -26,7 +27,8 @@ export default defineType({
       name: 'slug',
       title: 'Slug',
       type: 'slug',
-      options: {source: 'title', maxLength: 96},
+      // Unique per language, not across all posts: see slugUniqueInLanguage.ts.
+      options: {source: 'title', maxLength: 96, isUnique: isSlugUniqueInLanguage},
       validation: (Rule) => Rule.required(),
     }),
     defineField({
