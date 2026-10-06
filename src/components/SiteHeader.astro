@@ -96,8 +96,19 @@ const { lang, switcherLinks } = Astro.props;
 
 	/* One left-aligned bar; wrapping flex rather than a hamburger menu, so
 	   no JS, and on a ~375px screen it reflows into rows instead of
-	   overflowing. The divider lines frame it as a "bar" without needing a
-	   background color the pastel pass will want to own. */
+	   overflowing.
+
+	   The rose band runs the full width of the screen while the links stay
+	   aligned with the site's content width: the element itself keeps its
+	   in-box width, and a huge box-shadow in the same color, clipped to the
+	   bar's own height, paints the background out to both screen edges.
+	   Unlike a 100vw element this never causes horizontal scrolling. The
+	   negative bottom margin sits the bar flush on the header box's bottom
+	   edge instead of floating above the box's padding.
+
+	   Note for the bloom trail: the painted band is wider than this
+	   element's getBoundingClientRect(), so the keep-out logic should treat
+	   the bar's vertical span as full-width. */
 	.site-header__bar {
 		display: flex;
 		flex-wrap: wrap;
@@ -105,9 +116,31 @@ const { lang, switcherLinks } = Astro.props;
 		align-items: baseline;
 		gap: 0.25rem 1.5rem;
 		width: 100%;
+		margin-bottom: calc(-1 * var(--content-box-padding));
 		padding: 0.5rem 0;
-		border-block: 1px solid var(--color-rule);
+		background: var(--color-nav);
+		box-shadow: 0 0 0 100vmax var(--color-nav);
+		clip-path: inset(0 -100vmax);
+		color: var(--color-nav-text);
 		text-align: start;
+	}
+
+	/* :global because the category and language links are rendered by child
+	   components, which this file's scoped styles can't otherwise reach. */
+	.site-header__bar :global(a) {
+		color: var(--color-nav-text);
+		text-decoration: none;
+	}
+
+	.site-header__bar :global(a:hover) {
+		text-decoration: underline;
+	}
+
+	/* The site-wide focus ring is the dark rose link color, which would
+	   vanish on the rose bar. */
+	.site-header__bar :global(a:focus-visible) {
+		outline-color: var(--color-nav-text);
+		text-decoration: underline;
 	}
 
 	/* Auto margin pushes the switcher to the right end, including when it
