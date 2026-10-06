@@ -69,6 +69,8 @@ export const POST_SLUGS_QUERY = /* groq */ `
 
 // "Translated or not" = whether `body` is non-empty, not whether the
 // document exists (it always exists, per the stub behavior above).
+// Body images get their asset dereferenced (CDN URL + pixel dimensions,
+// for srcset and layout-stable width/height); text blocks pass through.
 export const POST_BY_SLUG_QUERY = /* groq */ `
   *[_type == "post" && slug.current == $slug && language == $lang][0] {
     _id,
@@ -82,7 +84,14 @@ export const POST_BY_SLUG_QUERY = /* groq */ `
       "title": coalesce(title[language == $lang][0].value, title[language == "en"][0].value),
       "slug": slug.current
     },
-    body,
+    body[] {
+      ...,
+      _type == "image" => {
+        alt,
+        caption,
+        asset->{ url, metadata { dimensions { width, height } } }
+      }
+    },
     language
   }
 `
