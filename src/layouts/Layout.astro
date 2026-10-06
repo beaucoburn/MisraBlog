@@ -38,25 +38,48 @@ interface Props {
 const { lang, pageTitle, description, ogType = 'website', ogImage, wide = false } = Astro.props;
 
 const fullTitle = pageTitle ? `${pageTitle} · ${SITE_TITLE}` : SITE_TITLE;
+
+// Pages without their own image (everything but posts with a cover) share
+// the brand link preview. Social sites need an absolute URL, and its size is
+// known, so it also gets width/height hints.
+// (Astro.site is unset when rendered outside a full build, e.g. in tests.)
+const DEFAULT_OG_IMAGE = new URL('/og-image.png', Astro.site ?? Astro.url).href;
+const socialImage = ogImage ?? DEFAULT_OG_IMAGE;
+
+// A link preview needs something truthful to say. Pages with a description
+// have that; site-level pages (no pageTitle, i.e. the homepage, where Instagram
+// link-in-bio traffic lands) do too, since their title is just the site name
+// and the image is the brand card. Anything else (e.g. an untranslated post,
+// whose title would be a bare slug) gets no og tags rather than misleading ones.
+const hasLinkPreview = Boolean(description) || !pageTitle;
 ---
 
 <html lang={lang}>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<link rel="icon" href="/favicon.ico" sizes="48x48" />
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<link rel="icon" href="/favicon.ico" />
+		<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+		<link rel="manifest" href="/site.webmanifest" />
+		<meta name="theme-color" content="#f8e6ee" />
 		<meta name="generator" content={Astro.generator} />
 		<title>{fullTitle}</title>
 		<link rel="canonical" href={Astro.url} />
-		{description && (
+		{description && <meta name="description" content={description} />}
+		{hasLinkPreview && (
 			<>
-				<meta name="description" content={description} />
 				<meta property="og:title" content={fullTitle} />
-				<meta property="og:description" content={description} />
+				{description && <meta property="og:description" content={description} />}
 				<meta property="og:type" content={ogType} />
 				<meta property="og:url" content={Astro.url} />
-				{ogImage && <meta property="og:image" content={ogImage} />}
+				<meta property="og:image" content={socialImage} />
+				{socialImage === DEFAULT_OG_IMAGE && (
+					<>
+						<meta property="og:image:width" content="1200" />
+						<meta property="og:image:height" content="630" />
+					</>
+				)}
 			</>
 		)}
 	</head>

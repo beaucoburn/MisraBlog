@@ -77,7 +77,10 @@ test('an untranslated post gets a plain link, not a titleless card', async () =>
   const result = await renderCategoryPage({ lang: 'tr', category: MUSIC_CATEGORY });
 
   expect(result).not.toContain('post-card__title');
-  expect(result).not.toContain('<img');
+  // Scoped to the listing: the site header carries the logo <img>.
+  const listing = result.match(/<main[\s\S]*?<\/main>/)?.[0] ?? '';
+  expect(listing).not.toBe('');
+  expect(listing).not.toContain('<img');
 });
 
 test('a translated post in the listing renders a full card', async () => {

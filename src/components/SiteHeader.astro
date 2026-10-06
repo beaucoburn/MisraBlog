@@ -4,8 +4,8 @@
 //
 // Layout: the logo sits centered on its own row, with a single centered
 // nav bar beneath it (categories, then About, then the language switcher).
-// The logo is src/assets/logo.* when present (see lib/siteImages.ts), and
-// falls back to the site name as a text wordmark until it's provided.
+// The logo is the brand wordmark, src/assets/logo/logo-wordmark.* (see
+// lib/siteImages.ts), falling back to the site name as text if it's absent.
 //
 // `switcherLinks` is a prop rather than something computed here because
 // only the page knows how to reach itself in the other locale:
@@ -35,7 +35,13 @@ const { lang, switcherLinks } = Astro.props;
 <header class="site-header">
 	<a class="site-header__logo" href={`/${lang}/`} aria-label={`${SITE_TITLE} — ${HOME_LINK_LABEL[lang]}`}>
 		{logoImage ? (
-			<Image src={logoImage} alt="" height={96} loading="eager" />
+			<Image
+				src={logoImage}
+				alt=""
+				height={96}
+				loading="eager"
+				format={logoImage.format === 'svg' ? 'svg' : undefined}
+			/>
 		) : (
 			<span class="site-header__wordmark">{SITE_TITLE}</span>
 		)}
@@ -69,7 +75,9 @@ const { lang, switcherLinks } = Astro.props;
 	.site-header__logo img {
 		display: block;
 		width: auto;
-		max-height: clamp(3.5rem, 12vw, 6rem);
+		/* The wordmark is wide (~5.4:1), so it's capped lower than a square
+		   logo would be: ~72px tall (~390px wide) on desktop. */
+		max-height: clamp(2.75rem, 10vw, 4.5rem);
 	}
 
 	.site-header__wordmark {
