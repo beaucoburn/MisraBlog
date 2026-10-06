@@ -10,5 +10,7 @@ test('sanity client is configured with real project settings', () => {
   expect(typeof config.dataset).toBe('string');
   expect(config.dataset).not.toHaveLength(0);
 
-  expect(config.useCdn).toBe(true);
+  // Builds must read uncached content: a webhook-triggered build starts
+  // seconds after a publish, before the API CDN reliably has the new version.
+  expect(config.useCdn).toBe(false);
 });
