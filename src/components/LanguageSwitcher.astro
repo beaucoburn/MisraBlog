@@ -11,7 +11,7 @@
 //     TRANSLATION_SIBLING_QUERY, since slugs can differ across locales.
 //     Link to the sibling's page even if it's untranslated (that page
 //     renders its own localized placeholder rather than 404ing).
-import { LOCALES, type Locale } from '../lib/i18n';
+import { LANGUAGE_NAME, LOCALES, type Locale } from '../lib/i18n';
 
 interface Props {
   currentLang: Locale;
@@ -24,7 +24,7 @@ const otherLocales = LOCALES.filter((locale) => locale !== currentLang && links[
 <nav aria-label="Language switcher">
   <ul>
     {otherLocales.map((locale) => (
-      <li><a href={links[locale]} hreflang={locale}>{locale}</a></li>
+      <li><a href={links[locale]} hreflang={locale} lang={locale}>{LANGUAGE_NAME[locale]}</a></li>
     ))}
   </ul>
 </nav>
@@ -33,7 +33,7 @@ const otherLocales = LOCALES.filter((locale) => locale !== currentLang && links[
   ul {
     display: flex;
     flex-wrap: wrap;
-    justify-content: center;
+    justify-content: flex-end;
     gap: 0.25rem 1rem;
     margin: 0;
     padding: 0;
@@ -43,6 +43,5 @@ const otherLocales = LOCALES.filter((locale) => locale !== currentLang && links[
   a {
     display: inline-block;
     padding: 0.25rem 0;
-    text-transform: uppercase;
   }
 </style>

@@ -2,8 +2,9 @@
 // The one header for every page, so navigation doesn't differ between the
 // homepage, a category listing and a post.
 //
-// Layout: the logo sits centered on its own row, with a single centered
-// nav bar beneath it (categories, then About, then the language switcher).
+// Layout: the logo sits centered on its own row, with a single nav bar
+// beneath it: categories, then About, left-aligned; the language switcher
+// pushed to the right end.
 // The logo is the full cartouche logo, src/assets/logo/logo-full.* (see
 // lib/siteImages.ts), falling back to the site name as text if it's absent.
 //
@@ -53,7 +54,9 @@ const { lang, switcherLinks } = Astro.props;
 				<li><a href={`/${lang}/about`}>{ABOUT_LABEL[lang]}</a></li>
 			</ul>
 		</nav>
-		<LanguageSwitcher currentLang={lang} links={switcherLinks} />
+		<div class="site-header__switcher">
+			<LanguageSwitcher currentLang={lang} links={switcherLinks} />
+		</div>
 	</div>
 </header>
 
@@ -91,25 +94,32 @@ const { lang, switcherLinks } = Astro.props;
 		text-decoration: underline;
 	}
 
-	/* One centered bar; wrapping flex rather than a hamburger menu, so no
-	   JS, and on a ~375px screen it reflows into centered rows instead of
+	/* One left-aligned bar; wrapping flex rather than a hamburger menu, so
+	   no JS, and on a ~375px screen it reflows into rows instead of
 	   overflowing. The divider lines frame it as a "bar" without needing a
 	   background color the pastel pass will want to own. */
 	.site-header__bar {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: center;
+		justify-content: flex-start;
 		align-items: baseline;
 		gap: 0.25rem 1.5rem;
 		width: 100%;
 		padding: 0.5rem 0;
 		border-block: 1px solid var(--color-rule);
+		text-align: start;
+	}
+
+	/* Auto margin pushes the switcher to the right end, including when it
+	   wraps onto its own row on a narrow screen. */
+	.site-header__switcher {
+		margin-inline-start: auto;
 	}
 
 	nav ul {
 		display: flex;
 		flex-wrap: wrap;
-		justify-content: center;
+		justify-content: flex-start;
 		gap: 0.25rem 1rem;
 		margin: 0;
 		padding: 0;

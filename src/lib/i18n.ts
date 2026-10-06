@@ -69,6 +69,13 @@ export const PAGES_NAV_LABEL: Record<Locale, string> = {
   tr: 'Sayfalar',
 };
 
+// Each language's name in that language (not translated into the current
+// one), so a reader always recognizes their own language in the switcher.
+export const LANGUAGE_NAME: Record<Locale, string> = {
+  en: 'English',
+  tr: 'Türkçe',
+};
+
 export const ABOUT_LABEL: Record<Locale, string> = {
   en: 'About',
   tr: 'Hakkında',
