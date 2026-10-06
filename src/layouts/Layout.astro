@@ -1,23 +1,27 @@
 ---
 // Shared base layout for all locale-prefixed pages.
 //
-// Establishes the DOM split a future daisy bloom-trail feature needs (see
-// CLAUDE.md "Design: Daisy Motif"):
-//   - `.bloom-layer` — reserved, empty mount point for the future bloom
-//     trail. Fixed, full-page, low z-index, purely decorative
+// Establishes the DOM split the daisy motif needs (see CLAUDE.md "Design:
+// Daisy Motif"):
+//   - `.bloom-layer` — fixed, full-page, low z-index, purely decorative
 //     (`aria-hidden`, `pointer-events: none`) so it never intercepts input
-//     or shows up to assistive tech.
+//     or shows up to assistive tech. On hover-capable desktops it hosts the
+//     BloomTrail island; touch devices never load that island's JS.
 //   - `.content-box[data-bloom-keepout]` — inner content wrappers (nav,
 //     main, footer) that sit above the bloom layer with an opaque
-//     background, and expose the `data-bloom-keepout` hook a future script
-//     will use to compute keep-out rects via `getBoundingClientRect()`.
-//     The middle one is a real <main> element (landmark) rather than a
-//     div; that's a semantics upgrade only — the class/attribute hook the
-//     bloom layer keys off is unchanged.
-//
-// This file only builds the structural skeleton — no bloom JS/SVGs here.
+//     background. The bloom trail reads `data-bloom-keepout` to compute
+//     keep-out rects via `getBoundingClientRect()`. The middle one is a
+//     real <main> element (landmark) rather than a div.
+//   - On touch devices, a static row of small daisies sits in each gap
+//     between boxes instead (pure CSS, `.content-box::before` below).
 import { Font } from 'astro:assets';
+import BloomTrail from '../components/BloomTrail.svelte';
 import SiteFooter from '../components/SiteFooter.astro';
+// External sprite URLs rather than inlined SVG: the two sprites share
+// symbol ids (daisy-0 … daisy-5), and as cached files they cost nothing
+// on pages after the first.
+import pinkSprite from '../assets/daisies/pink/daisy-bloom-sprite.svg?url';
+import whiteSprite from '../assets/daisies/white/daisy-bloom-sprite.svg?url';
 import { SITE_TITLE, type Locale } from '../lib/i18n';
 
 interface Props {
@@ -86,7 +90,12 @@ const hasLinkPreview = Boolean(description) || !pageTitle;
 		)}
 	</head>
 	<body>
-		<div class="bloom-layer" aria-hidden="true"></div>
+		<div class="bloom-layer" aria-hidden="true">
+			<BloomTrail
+				client:media="(hover: hover) and (pointer: fine)"
+				sprites={{ pink: pinkSprite, white: whiteSprite }}
+			/>
+		</div>
 		<div class="content-box content-box--wide" data-bloom-keepout>
 			<slot name="nav" />
 		</div>
@@ -98,7 +107,7 @@ const hasLinkPreview = Boolean(description) || !pageTitle;
 		<main class:list={['content-box', { 'content-box--wide': wide }]} data-bloom-keepout>
 			<slot />
 		</main>
-		<div class="content-box content-box--wide" data-bloom-keepout>
+		<div class="content-box content-box--wide content-box--last" data-bloom-keepout>
 			<SiteFooter lang={lang} />
 		</div>
 	</body>
@@ -127,12 +136,26 @@ const hasLinkPreview = Boolean(description) || !pageTitle;
 		   e.g. the header's nav bar sitting flush on the box's bottom edge. */
 		--content-box-padding: clamp(1rem, 4vw, 2rem);
 
+		/* Space between content boxes (and above the first / below the last).
+		   Touch devices widen it so the static daisy row fits (see
+		   .content-box::before). */
+		--box-gap: 1rem;
+		--gap-daisy-size: 20px;
+
 		/* Brand face for everything outside post bodies (set in small caps on
 		   <body>; see astro.config.mjs for why it isn't the SC family); the
 		   reading face is for long-form text (post pages opt into it on
 		   their <article>). */
 		--font-brand: var(--font-cormorant);
 		--font-reading: system-ui, -apple-system, 'Segoe UI', sans-serif;
+	}
+
+	/* The exact complement of the bloom trail's client:media query, so every
+	   device gets one daisy treatment or the other, never both or neither. */
+	@media not all and (hover: hover) and (pointer: fine) {
+		:root {
+			--box-gap: 1.5rem;
+		}
 	}
 
 	*,
@@ -145,7 +168,7 @@ const hasLinkPreview = Boolean(description) || !pageTitle;
 		margin: 0;
 		/* Vertical only — the content boxes stay free to run edge to edge on
 		   a phone, per the no-fixed-min-width rule for .content-box. */
-		padding: 1rem 0;
+		padding: var(--box-gap) 0;
 		background: var(--color-page);
 		color: var(--color-text);
 		font-family: var(--font-brand);
@@ -194,7 +217,7 @@ const hasLinkPreview = Boolean(description) || !pageTitle;
 		padding: var(--content-box-padding);
 		width: 100%;
 		max-width: 48rem;
-		margin: 0 auto 1rem;
+		margin: 0 auto var(--box-gap);
 	}
 
 	/* Site-width boxes (header, hero, footer, and grid pages' <main>). Prose
@@ -203,10 +226,69 @@ const hasLinkPreview = Boolean(description) || !pageTitle;
 		max-width: 72rem;
 	}
 
-	/* For full-bleed media like the hero photo: no inner padding, and the
-	   image's corners are clipped to the box. */
+	/* For full-bleed media like the hero photo: no inner padding. (No
+	   overflow clipping: the hero image already sizes itself to the box, and
+	   clipping would hide the gap daisies drawn just outside it.) */
 	.content-box--flush {
 		padding: 0;
-		overflow: hidden;
+	}
+
+	/* Touch devices: a static row of small daisies in the gap above each box
+	   (the first box's sits in the body's top padding), plus one below the
+	   last box (the footer's, marked .content-box--last). Pure CSS, no JS. Mostly white with a pink accent, mixing
+	   stages 3–5 (mostly full bloom) per the designer's README; two
+	   arrangements alternate so neighbouring gaps don't match. */
+	@media not all and (hover: hover) and (pointer: fine) {
+		.content-box::before,
+		.content-box--last::after {
+			content: '';
+			position: absolute;
+			left: 0;
+			right: 0;
+			height: var(--box-gap);
+			pointer-events: none;
+			background-repeat: no-repeat;
+			background-size: var(--gap-daisy-size);
+			background-image:
+				url('../assets/daisies/white/daisy-5-full-bloom.svg'),
+				url('../assets/daisies/white/daisy-4-open.svg'),
+				url('../assets/daisies/pink/daisy-5-full-bloom.svg'),
+				url('../assets/daisies/white/daisy-5-full-bloom.svg'),
+				url('../assets/daisies/white/daisy-3-half-open.svg'),
+				url('../assets/daisies/white/daisy-5-full-bloom.svg');
+			background-position:
+				7% 50%,
+				24% 50%,
+				43% 50%,
+				61% 50%,
+				78% 50%,
+				94% 50%;
+		}
+
+		.content-box::before {
+			bottom: 100%;
+		}
+
+		.content-box--last::after {
+			top: 100%;
+		}
+
+		.content-box:nth-child(even)::before,
+		.content-box--last::after {
+			background-image:
+				url('../assets/daisies/white/daisy-4-open.svg'),
+				url('../assets/daisies/white/daisy-5-full-bloom.svg'),
+				url('../assets/daisies/white/daisy-5-full-bloom.svg'),
+				url('../assets/daisies/pink/daisy-4-open.svg'),
+				url('../assets/daisies/white/daisy-5-full-bloom.svg'),
+				url('../assets/daisies/pink/daisy-5-full-bloom.svg');
+			background-position:
+				12% 50%,
+				29% 50%,
+				50% 50%,
+				66% 50%,
+				83% 50%,
+				97% 50%;
+		}
 	}
 </style>

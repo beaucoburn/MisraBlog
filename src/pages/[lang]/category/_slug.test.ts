@@ -34,10 +34,10 @@ type StaticPathEntry = {
 };
 
 async function renderCategoryPage(props: Record<string, unknown>) {
-  const { experimental_AstroContainer: AstroContainer } = await import('astro/container');
+  const { createTestContainer } = await import('../../../lib/testContainer');
   const { default: CategoryPage } = await import('./[slug].astro');
 
-  const container = await AstroContainer.create();
+  const container = await createTestContainer();
   return container.renderToString(CategoryPage, { props });
 }
 

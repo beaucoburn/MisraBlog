@@ -47,10 +47,10 @@ test('getStaticPaths returns one entry per post slug, per locale', async () => {
 test('renders the real body and title when the post is translated', async () => {
   mockPageFetches(POST_EN_TRANSLATED_FIXTURE);
 
-  const { experimental_AstroContainer: AstroContainer } = await import('astro/container');
+  const { createTestContainer } = await import('../../../lib/testContainer');
   const { default: PostPage } = await import('./[slug].astro');
 
-  const container = await AstroContainer.create();
+  const container = await createTestContainer();
   const result = await container.renderToString(PostPage, {
     params: { lang: 'en', slug: POST_EN_TRANSLATED_FIXTURE.slug },
     props: { lang: 'en' },
@@ -64,10 +64,10 @@ test('renders the real body and title when the post is translated', async () => 
 test('wraps the body in an <article> and shows the date and category chips', async () => {
   mockPageFetches(POST_EN_TRANSLATED_FIXTURE);
 
-  const { experimental_AstroContainer: AstroContainer } = await import('astro/container');
+  const { createTestContainer } = await import('../../../lib/testContainer');
   const { default: PostPage } = await import('./[slug].astro');
 
-  const container = await AstroContainer.create();
+  const container = await createTestContainer();
   const result = await container.renderToString(PostPage, {
     params: { lang: 'en', slug: POST_EN_TRANSLATED_FIXTURE.slug },
     props: { lang: 'en' },
@@ -85,10 +85,10 @@ test('wraps the body in an <article> and shows the date and category chips', asy
 test('builds the SEO meta from the post itself and never emits an empty description', async () => {
   mockPageFetches(POST_EN_TRANSLATED_FIXTURE);
 
-  const { experimental_AstroContainer: AstroContainer } = await import('astro/container');
+  const { createTestContainer } = await import('../../../lib/testContainer');
   const { default: PostPage } = await import('./[slug].astro');
 
-  const container = await AstroContainer.create();
+  const container = await createTestContainer();
   const translated = await container.renderToString(PostPage, {
     params: { lang: 'en', slug: POST_EN_TRANSLATED_FIXTURE.slug },
     props: { lang: 'en' },
@@ -116,10 +116,10 @@ test('builds the SEO meta from the post itself and never emits an empty descript
 test('renders the localized placeholder, not the title/body, when the post is untranslated', async () => {
   mockPageFetches(POST_TR_UNTRANSLATED_FIXTURE);
 
-  const { experimental_AstroContainer: AstroContainer } = await import('astro/container');
+  const { createTestContainer } = await import('../../../lib/testContainer');
   const { default: PostPage } = await import('./[slug].astro');
 
-  const container = await AstroContainer.create();
+  const container = await createTestContainer();
   const result = await container.renderToString(PostPage, {
     params: { lang: 'tr', slug: POST_TR_UNTRANSLATED_FIXTURE.slug },
     props: { lang: 'tr' },
@@ -133,10 +133,10 @@ test('renders the localized placeholder, not the title/body, when the post is un
 test('language switcher resolves the sibling slug via translation.metadata, not the current slug', async () => {
   mockPageFetches(POST_EN_TRANSLATED_FIXTURE);
 
-  const { experimental_AstroContainer: AstroContainer } = await import('astro/container');
+  const { createTestContainer } = await import('../../../lib/testContainer');
   const { default: PostPage } = await import('./[slug].astro');
 
-  const container = await AstroContainer.create();
+  const container = await createTestContainer();
   const result = await container.renderToString(PostPage, {
     params: { lang: 'en', slug: POST_EN_TRANSLATED_FIXTURE.slug },
     props: { lang: 'en' },
@@ -151,10 +151,10 @@ test('language switcher resolves the sibling slug via translation.metadata, not 
 test('the shared site header is present on post pages too', async () => {
   mockPageFetches(POST_EN_TRANSLATED_FIXTURE);
 
-  const { experimental_AstroContainer: AstroContainer } = await import('astro/container');
+  const { createTestContainer } = await import('../../../lib/testContainer');
   const { default: PostPage } = await import('./[slug].astro');
 
-  const container = await AstroContainer.create();
+  const container = await createTestContainer();
   const result = await container.renderToString(PostPage, {
     params: { lang: 'en', slug: POST_EN_TRANSLATED_FIXTURE.slug },
     props: { lang: 'en' },

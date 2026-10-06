@@ -15,10 +15,10 @@ vi.mock('../../lib/sanity', () => ({
 }));
 
 async function renderHome(lang: string) {
-  const { experimental_AstroContainer: AstroContainer } = await import('astro/container');
+  const { createTestContainer } = await import('../../lib/testContainer');
   const { default: HomePage } = await import('./index.astro');
 
-  const container = await AstroContainer.create();
+  const container = await createTestContainer();
   return container.renderToString(HomePage, { props: { lang } });
 }
 

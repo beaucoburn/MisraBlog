@@ -47,7 +47,7 @@ const { lang, switcherLinks } = Astro.props;
 			<span class="site-header__wordmark">{SITE_TITLE}</span>
 		)}
 	</a>
-	<div class="site-header__bar">
+	<div class="site-header__bar" data-bloom-keepout="full-width">
 		<CategoryNav lang={lang} />
 		<nav aria-label={PAGES_NAV_LABEL[lang]}>
 			<ul>
@@ -106,9 +106,9 @@ const { lang, switcherLinks } = Astro.props;
 	   negative bottom margin sits the bar flush on the header box's bottom
 	   edge instead of floating above the box's padding.
 
-	   Note for the bloom trail: the painted band is wider than this
-	   element's getBoundingClientRect(), so the keep-out logic should treat
-	   the bar's vertical span as full-width. */
+	   The painted band is wider than this element's getBoundingClientRect(),
+	   so it's marked data-bloom-keepout="full-width": the bloom trail keeps
+	   daisies off its whole row, edge to edge. */
 	.site-header__bar {
 		display: flex;
 		flex-wrap: wrap;

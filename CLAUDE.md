@@ -42,6 +42,7 @@ Decorative floating/animated daisy element, split by device capability:
     - Performance cap: hard cap total bloom count (~150–200) or begin repositioning/reusing oldest blooms once the cap is hit, since blooms accumulate rather than fade.
     - Visual variety: randomize scale/rotation slightly per bloom so the margin doesn't look like a mechanical grid.
     - Svelte's built-in motion primitives (`svelte/motion` — `spring`/`tweened`, `svelte/animate`) are a good fit for the bloom-in animation without needing an external animation library.
+- **Decided 2026-10-06 (built):** the bloom trail is **site-wide** and the garden is a **fixed backdrop** (blooms stay put while content scrolls over them); colors are **mostly white (~75%) with some pink**. On touch devices the static daisies sit **in the gaps between content boxes** (boxes are full-bleed on phones, so there are no margins). Code: `components/BloomTrail.svelte` (island, `client:media`), `lib/bloomTrail.ts` (tested rules/tuning), gap daisies in `layouts/Layout.astro`.
 
 ## Suggested First Steps
 1. Scaffold the Astro project with the Svelte integration (`astro add svelte`).
@@ -55,6 +56,5 @@ Decorative floating/animated daisy element, split by device capability:
 ## Open Items / Not Yet Decided
 - How to implement Sanity content translation (translated fields vs. separate documents per locale via Sanity's internationalization plugin) — needs research once CMS is finalized.
 - Final confirmation on Sanity (pricing/limits, ownership-transfer specifics) vs. alternatives.
-- Whether the bloom trail is site-wide or scoped to specific sections (e.g., just a hero area).
 - Link-in-bio setup to funnel Instagram followers to the blog.
 - Email capture/newsletter approach (not yet settled, since Ghost's native newsletter is no longer in play — will need a Sanity/Astro-compatible solution if wanted).
