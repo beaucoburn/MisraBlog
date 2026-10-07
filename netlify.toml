@@ -1,3 +1,23 @@
+# ── How the site gets rebuilt ────────────────────────────────────────────
+# The site is static: content from Sanity is baked in at build time. It
+# rebuilds automatically in two cases:
+#   1. A push to `main` on GitHub (Netlify's normal Git integration).
+#   2. Publishing content in Sanity Studio (birmisradaha.sanity.studio):
+#      - Sanity webhook "Rebuild Netlify site"
+#        (sanity.io/manage → project xl4i9u1k → API → Webhooks)
+#        Dataset: production · Trigger: create/update/delete
+#        Filter: _type in ["post", "category", "translation.metadata"]
+#        Drafts and versions: off (only publishing triggers a build)
+#      - …which calls the Netlify build hook "Sanity content change"
+#        (Project configuration → Build & deploy → Continuous deployment
+#        → Build hooks), with ?trigger_title=Sanity+content+change added
+#        to the URL so these builds are labelled in the Deploys list.
+# The build hook URL is a secret (anyone with it can trigger builds), so it
+# isn't stored in this repo. If it leaks: delete the hook in Netlify,
+# create a new one, and paste the new URL into the Sanity webhook.
+# Builds read Sanity uncached (useCdn: false in src/lib/sanity.ts) so a
+# build started right after a publish never picks up the old version.
+
 [build]
   command = "npm run build"
   publish = "dist"
