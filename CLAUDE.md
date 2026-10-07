@@ -56,5 +56,5 @@ Decorative floating/animated daisy element, split by device capability:
 ## Open Items / Not Yet Decided
 - How to implement Sanity content translation (translated fields vs. separate documents per locale via Sanity's internationalization plugin) — needs research once CMS is finalized.
 - Final confirmation on Sanity (pricing/limits, ownership-transfer specifics) vs. alternatives.
-- Link-in-bio setup to funnel Instagram followers to the blog.
+- ~~Link-in-bio setup~~ — **built 2026-10-06:** `/en/links` and `/tr/links` (`src/pages/[lang]/links.astro`), linked from her Instagram bio (@misranaganlu). Footer links to her Instagram on every page.
 - ~~Email capture/newsletter approach~~ — **decided 2026-10-06: no emails or newsletter for now.** Don't build or propose one unless the user brings it back.
