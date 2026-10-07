@@ -18,6 +18,11 @@ export function isLocale(value: string | undefined): value is Locale {
 // translating it would be wrong rather than merely unfinished.
 export const SITE_TITLE = 'Bir Misra Daha';
 
+// Her Instagram, linked from the footer and the /links page. Like the site
+// name, the same in every language.
+export const INSTAGRAM_HANDLE = 'misranaganlu';
+export const INSTAGRAM_URL = `https://www.instagram.com/${INSTAGRAM_HANDLE}/`;
+
 // Builds the language-switcher href map for pages whose path is identical
 // in every locale apart from the locale segment itself (home, about, and
 // category listings - category slugs are a single canonical field, shared
@@ -95,4 +100,21 @@ export const LATEST_POSTS_HEADING: Record<Locale, string> = {
 export const NO_POSTS_MESSAGE: Record<Locale, string> = {
   en: 'No posts yet.',
   tr: 'Henüz yazı yok.',
+};
+
+// /links — the page her Instagram bio points to (link-in-bio). Short,
+// warm UI copy; her own words can replace these any time.
+export const LINKS_PAGE_TITLE: Record<Locale, string> = {
+  en: 'Links',
+  tr: 'Bağlantılar',
+};
+
+export const LINKS_WELCOME: Record<Locale, string> = {
+  en: 'Welcome! Here’s what’s new on the blog.',
+  tr: 'Hoş geldin! Blogdaki en yeni yazılar burada.',
+};
+
+export const ALL_POSTS_LABEL: Record<Locale, string> = {
+  en: 'See all posts',
+  tr: 'Tüm yazılar',
 };

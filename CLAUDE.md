@@ -57,4 +57,4 @@ Decorative floating/animated daisy element, split by device capability:
 - How to implement Sanity content translation (translated fields vs. separate documents per locale via Sanity's internationalization plugin) — needs research once CMS is finalized.
 - Final confirmation on Sanity (pricing/limits, ownership-transfer specifics) vs. alternatives.
 - Link-in-bio setup to funnel Instagram followers to the blog.
-- Email capture/newsletter approach (not yet settled, since Ghost's native newsletter is no longer in play — will need a Sanity/Astro-compatible solution if wanted).
+- ~~Email capture/newsletter approach~~ — **decided 2026-10-06: no emails or newsletter for now.** Don't build or propose one unless the user brings it back.

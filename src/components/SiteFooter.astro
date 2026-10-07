@@ -10,7 +10,7 @@
 // photographer's name and the Unsplash links (with their referral params)
 // are kept exactly as Unsplash provides them.
 import { Image } from 'astro:assets';
-import { SITE_TITLE, type Locale } from '../lib/i18n';
+import { INSTAGRAM_HANDLE, INSTAGRAM_URL, SITE_TITLE, type Locale } from '../lib/i18n';
 import { wordmarkImage } from '../lib/siteImages';
 
 interface Props {
@@ -46,7 +46,9 @@ const photoUrl =
 			<>Photo by <a href={photographerUrl}>Ivo Rainha</a> on <a href={photoUrl}>Unsplash</a></>
 		)}
 	</p>
-	<!-- TODO(content): add Instagram link once we have the handle -->
+	<p class="site-footer__social">
+		<a href={INSTAGRAM_URL} rel="me">Instagram · @{INSTAGRAM_HANDLE}</a>
+	</p>
 </footer>
 
 <style>
@@ -75,7 +77,8 @@ const photoUrl =
 		height: 1.75rem;
 	}
 
-	.site-footer__credit {
+	.site-footer__credit,
+	.site-footer__social {
 		margin-top: 0.25rem;
 	}
 </style>

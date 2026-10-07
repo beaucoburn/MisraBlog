@@ -34,10 +34,10 @@ test('credits the hero photo with Unsplash attribution links in both locales', a
   expect(await renderFooter('tr')).toContain('Fotoğraf:');
 });
 
-test('marks where the social link goes without inventing one', async () => {
-  const result = await renderFooter('en');
-
-  expect(result).toContain('TODO(content): add Instagram link once we have the handle');
-  // No fabricated handle or href until we actually have it.
-  expect(result).not.toContain('instagram.com');
+test('links to her Instagram in both locales', async () => {
+  for (const lang of ['en', 'tr']) {
+    const result = await renderFooter(lang);
+    expect(result).toContain('href="https://www.instagram.com/misranaganlu/"');
+    expect(result).toContain('@misranaganlu');
+  }
 });
