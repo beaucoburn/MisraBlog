@@ -1,0 +1,88 @@
+---
+// Sanity rich text (Portable Text) as HTML, in the reading face. Shared
+// by post bodies and the About page so both look and behave the same.
+// Rendering, escaping and link vetting live in lib/portableText.ts.
+import { renderPortableText, type PortableTextBlock } from '../lib/portableText';
+
+interface Props {
+	blocks: PortableTextBlock[] | null | undefined;
+	class?: string;
+}
+
+const { blocks, class: className } = Astro.props;
+const html = renderPortableText(blocks);
+---
+<div class:list={['rich-text', className]} set:html={html} />
+
+<style>
+	/* Long-form text stays in the reading face; the rest of the site uses
+	   the brand small caps set on <body> in Layout.astro. */
+	.rich-text {
+		font-family: var(--font-reading);
+		font-variant-caps: normal;
+		font-size: 1rem;
+		font-weight: 400;
+		overflow-wrap: break-word;
+	}
+
+	/* The content is injected HTML (set:html), which scoped styles can't
+	   see, hence :global() for everything inside it. */
+	.rich-text :global(:is(p, ul, ol, blockquote, figure)) {
+		margin: 0 0 1.1em;
+	}
+
+	.rich-text :global(:is(h2, h3)) {
+		line-height: 1.25;
+		margin: 1.75em 0 0.5em;
+	}
+
+	.rich-text :global(h2) {
+		font-size: 1.5rem;
+	}
+
+	.rich-text :global(h3) {
+		font-size: 1.2rem;
+	}
+
+	.rich-text :global(:is(ul, ol)) {
+		padding-inline-start: 1.5em;
+	}
+
+	.rich-text :global(li + li) {
+		margin-top: 0.25em;
+	}
+
+	/* A soft rose rule, like the nav band, rather than a heavy block. */
+	.rich-text :global(blockquote) {
+		margin-inline: 0;
+		padding: 0.25em 0 0.25em 1em;
+		border-inline-start: 3px solid var(--color-nav);
+		color: var(--color-muted);
+		font-style: italic;
+	}
+
+	.rich-text :global(blockquote p) {
+		margin: 0;
+	}
+
+	.rich-text :global(code) {
+		padding: 0.1em 0.3em;
+		border-radius: 4px;
+		background: var(--color-chip);
+		font-size: 0.9em;
+	}
+
+	.rich-text :global(.post-figure img) {
+		display: block;
+		width: 100%;
+		height: auto;
+		border-radius: 4px;
+	}
+
+	.rich-text :global(.post-figure figcaption) {
+		margin-top: 0.5em;
+		font-size: 0.875rem;
+		color: var(--color-muted);
+		text-align: center;
+	}
+</style>

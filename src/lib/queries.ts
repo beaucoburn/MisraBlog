@@ -108,3 +108,22 @@ export const TRANSLATION_SIBLING_QUERY = /* groq */ `
     }
   }
 `
+
+// The About page: one fixed document (id "aboutPage", a Studio singleton)
+// holding both languages side by side. Only the published version is ever
+// read, so until she publishes it this returns null and the page keeps its
+// placeholder. Images in either body (and the photo) get their asset
+// dereferenced, same as post bodies.
+export const ABOUT_PAGE_QUERY = /* groq */ `
+  *[_id == "aboutPage"][0] {
+    photo { alt, asset->{ url, metadata { dimensions { width, height } } } },
+    bodyEn[] {
+      ...,
+      _type == "image" => { alt, caption, asset->{ url, metadata { dimensions { width, height } } } }
+    },
+    bodyTr[] {
+      ...,
+      _type == "image" => { alt, caption, asset->{ url, metadata { dimensions { width, height } } } }
+    }
+  }
+`

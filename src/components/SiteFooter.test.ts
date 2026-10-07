@@ -41,3 +41,12 @@ test('links to her Instagram in both locales', async () => {
     expect(result).toContain('@misranaganlu');
   }
 });
+
+test('carries the About link, in its own labelled nav, in both locales', async () => {
+  const en = await renderFooter('en');
+  const tr = await renderFooter('tr');
+
+  expect(en).toMatch(/<nav class="site-footer__nav"[^>]*aria-label="Pages"/);
+  expect(en).toMatch(/href="\/en\/about"[^>]*>About<\/a>/);
+  expect(tr).toMatch(/href="\/tr\/about"[^>]*>Hakkında<\/a>/);
+});

@@ -3,8 +3,8 @@
 // homepage, a category listing and a post.
 //
 // Layout: the logo sits centered on its own row, with a single nav bar
-// beneath it: categories, then About, left-aligned; the language switcher
-// pushed to the right end.
+// beneath it: categories left-aligned, the language switcher pushed to the
+// right end. (About lives in the footer.)
 // The logo is the full cartouche logo, src/assets/logo/logo-full.* (see
 // lib/siteImages.ts), falling back to the site name as text if it's absent.
 //
@@ -19,9 +19,7 @@ import CategoryNav from './CategoryNav.astro';
 import LanguageSwitcher from './LanguageSwitcher.astro';
 import { logoImage } from '../lib/siteImages';
 import {
-  ABOUT_LABEL,
   HOME_LINK_LABEL,
-  PAGES_NAV_LABEL,
   SITE_TITLE,
   type Locale,
 } from '../lib/i18n';
@@ -49,11 +47,6 @@ const { lang, switcherLinks } = Astro.props;
 	</a>
 	<div class="site-header__bar" data-bloom-keepout="full-width">
 		<CategoryNav lang={lang} />
-		<nav aria-label={PAGES_NAV_LABEL[lang]}>
-			<ul>
-				<li><a href={`/${lang}/about`}>{ABOUT_LABEL[lang]}</a></li>
-			</ul>
-		</nav>
 		<div class="site-header__switcher">
 			<LanguageSwitcher currentLang={lang} links={switcherLinks} />
 		</div>
@@ -149,19 +142,4 @@ const { lang, switcherLinks } = Astro.props;
 		margin-inline-start: auto;
 	}
 
-	nav ul {
-		display: flex;
-		flex-wrap: wrap;
-		justify-content: flex-start;
-		gap: 0.25rem 1rem;
-		margin: 0;
-		padding: 0;
-		list-style: none;
-	}
-
-	nav a {
-		/* Roomier hit target for touch, without changing layout much. */
-		display: inline-block;
-		padding: 0.25rem 0;
-	}
 </style>

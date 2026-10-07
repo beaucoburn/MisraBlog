@@ -1,9 +1,15 @@
 ---
-// Static site copy, not CMS content — one prerendered page per locale, no
-// Sanity fetch. The body is a deliberate placeholder: the author's real
-// bio hasn't been written yet, and nothing here should invent one.
+// Her About page, edited in Sanity Studio as the single "About page"
+// document (both languages side by side; see studio/schemaTypes/aboutPage.ts).
+// Each locale shows its own language's text. Until that language has been
+// written and published, the page shows a short placeholder rather than
+// the other language's text, and nothing here invents a bio.
 import Layout from '../../layouts/Layout.astro';
 import SiteHeader from '../../components/SiteHeader.astro';
+import RichText from '../../components/RichText.astro';
+import { sanityClient } from '../../lib/sanity';
+import { ABOUT_PAGE_QUERY } from '../../lib/queries';
+import { blocksToPlainText, renderSanityImage, type BodyImage, type PortableTextBlock } from '../../lib/portableText';
 import {
 	ABOUT_LABEL,
 	ABOUT_PLACEHOLDER_BODY,
@@ -11,6 +17,12 @@ import {
 	localizedPaths,
 	type Locale,
 } from '../../lib/i18n';
+
+interface AboutPageDoc {
+	photo: Omit<BodyImage, '_type'> | null;
+	bodyEn: PortableTextBlock[] | null;
+	bodyTr: PortableTextBlock[] | null;
+}
 
 export function getStaticPaths() {
 	return LOCALES.map((lang) => ({
@@ -24,18 +36,55 @@ interface Props {
 }
 
 const { lang } = Astro.props;
+
+const about: AboutPageDoc | null = await sanityClient.fetch(ABOUT_PAGE_QUERY);
+const body = (lang === 'tr' ? about?.bodyTr : about?.bodyEn) ?? [];
+const hasBody = body.length > 0;
+const photoHtml = hasBody && about?.photo ? renderSanityImage({ _type: 'image', ...about.photo }) : '';
+
+// Meta description from her own opening words, once there are some.
+const META_DESCRIPTION_MAX = 160;
+const text = blocksToPlainText(body).join(' ').trim();
+const description = text
+	? text.length > META_DESCRIPTION_MAX
+		? `${text.slice(0, META_DESCRIPTION_MAX - 1).trimEnd()}…`
+		: text
+	: undefined;
 ---
-<Layout lang={lang} pageTitle={ABOUT_LABEL[lang]}>
+<Layout lang={lang} pageTitle={ABOUT_LABEL[lang]} description={description}>
 	<SiteHeader lang={lang} switcherLinks={localizedPaths('about')} slot="nav" />
 	<h1>{ABOUT_LABEL[lang]}</h1>
-	<!-- TODO(content): replace with real bio from the friend -->
-	<p>{ABOUT_PLACEHOLDER_BODY[lang]}</p>
+	{hasBody ? (
+		<>
+			{photoHtml && <div class="about__photo" set:html={photoHtml} />}
+			<RichText blocks={body} />
+		</>
+	) : (
+		<p class="about__placeholder">{ABOUT_PLACEHOLDER_BODY[lang]}</p>
+	)}
 </Layout>
 
 <style>
 	h1 {
 		font-size: clamp(1.75rem, 6vw, 2.5rem);
 		line-height: 1.2;
-		margin: 0 0 0.5rem;
+		margin: 0 0 1rem;
+	}
+
+	/* A portrait, not a banner: centred and modest. */
+	.about__photo {
+		max-width: 18rem;
+		margin: 0 auto 1.5rem;
+	}
+
+	.about__photo :global(figure) {
+		margin: 0;
+	}
+
+	.about__photo :global(img) {
+		display: block;
+		width: 100%;
+		height: auto;
+		border-radius: 6px;
 	}
 </style>

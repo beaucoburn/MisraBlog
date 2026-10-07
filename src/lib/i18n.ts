@@ -86,7 +86,8 @@ export const ABOUT_LABEL: Record<Locale, string> = {
   tr: 'Hakkında',
 };
 
-// Placeholder copy only - the real bio is still to come from the author.
+// Shown on the About page until she publishes that language's text in
+// Studio (the "About page" document).
 export const ABOUT_PLACEHOLDER_BODY: Record<Locale, string> = {
   en: 'Bio coming soon.',
   tr: 'Yakında.',

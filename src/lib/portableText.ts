@@ -41,7 +41,8 @@ const IMAGE_SIZES = '(min-width: 48rem) 44rem, 100vw';
 // so the author's whole image is always shown.
 const cdnUrl = (url: string, width: number) => `${url}?w=${width}&fit=max&auto=format`;
 
-function renderImage(image: BodyImage): string {
+// Also used for the About page photo.
+export function renderSanityImage(image: BodyImage): string {
   const url = image.asset?.url;
   if (!url) return '';
 
@@ -65,7 +66,7 @@ function renderImage(image: BodyImage): string {
 
 const components: PortableTextComponents = {
   types: {
-    image: ({ value }) => renderImage(value as BodyImage),
+    image: ({ value }) => renderSanityImage(value as BodyImage),
   },
   block: {
     normal: ({ children }) => `<p>${children}</p>`,

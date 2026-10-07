@@ -1,4 +1,5 @@
 import {defineField, defineType} from 'sanity'
+import {richTextMembers} from './richText'
 import {isSlugUniqueInLanguage} from './slugUniqueInLanguage'
 
 export default defineType({
@@ -70,40 +71,8 @@ export default defineType({
       name: 'body',
       title: 'Body',
       type: 'array',
-      of: [
-        {
-          type: 'block',
-          // A short menu instead of the default H1–H6: the post title is
-          // already the page's main heading, and fewer choices are easier
-          // to write with. The site still renders any older H1/H4–H6
-          // content sensibly (see src/lib/portableText.ts).
-          styles: [
-            {title: 'Normal', value: 'normal'},
-            {title: 'Heading', value: 'h2'},
-            {title: 'Subheading', value: 'h3'},
-            {title: 'Quote', value: 'blockquote'},
-          ],
-        },
-        {
-          type: 'image',
-          title: 'Image',
-          options: {hotspot: true},
-          fields: [
-            defineField({
-              name: 'alt',
-              title: 'Alt text',
-              type: 'string',
-              description: 'Brief description of the image for screen readers and SEO. Optional, but recommended.',
-            }),
-            defineField({
-              name: 'caption',
-              title: 'Caption',
-              type: 'string',
-              description: 'Optional. Shown under the image.',
-            }),
-          ],
-        },
-      ],
+      // Same editor as the About page; see richText.ts.
+      of: richTextMembers,
     }),
   ],
 })

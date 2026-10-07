@@ -114,7 +114,11 @@ test('the shared site header replaces the old switcher-only nav', async () => {
 
   expect(result).toContain('aria-label="Categories"');
   expect(result).toContain('aria-label="Language switcher"');
+  // About moved to the footer: it's on the page, but not in the nav band.
   expect(result).toContain('href="/en/about"');
+  const header = result.match(/<header[\s\S]*?<\/header>/)?.[0] ?? '';
+  expect(header).not.toBe('');
+  expect(header).not.toContain('/en/about');
   // Category slugs are shared cross-locale, so the switcher just swaps the
   // locale segment here.
   expect(result).toContain('href="/tr/category/music"');

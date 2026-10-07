@@ -6,7 +6,7 @@
 #      - Sanity webhook "Rebuild Netlify site"
 #        (sanity.io/manage → project xl4i9u1k → API → Webhooks)
 #        Dataset: production · Trigger: create/update/delete
-#        Filter: _type in ["post", "category", "translation.metadata"]
+#        Filter: _type in ["post", "category", "translation.metadata", "aboutPage"]
 #        Drafts and versions: off (only publishing triggers a build)
 #      - …which calls the Netlify build hook "Sanity content change"
 #        (Project configuration → Build & deploy → Continuous deployment

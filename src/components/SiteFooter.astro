@@ -1,6 +1,7 @@
 ---
 // Rendered by Layout.astro on every page (inside its own content box), so
-// individual pages never have to remember to include it.
+// individual pages never have to remember to include it. The About link
+// lives here (left side) rather than in the nav band.
 //
 // The copyright line is the site name, which is a proper name and reads
 // the same in both locales. It's shown as the brand wordmark
@@ -10,7 +11,14 @@
 // photographer's name and the Unsplash links (with their referral params)
 // are kept exactly as Unsplash provides them.
 import { Image } from 'astro:assets';
-import { INSTAGRAM_HANDLE, INSTAGRAM_URL, SITE_TITLE, type Locale } from '../lib/i18n';
+import {
+  ABOUT_LABEL,
+  INSTAGRAM_HANDLE,
+  INSTAGRAM_URL,
+  PAGES_NAV_LABEL,
+  SITE_TITLE,
+  type Locale,
+} from '../lib/i18n';
 import { wordmarkImage } from '../lib/siteImages';
 
 interface Props {
@@ -26,37 +34,67 @@ const photoUrl =
   'https://unsplash.com/photos/library-with-stairs-and-shelves-Lg9NLmu4B_A?utm_source=unsplash&utm_medium=referral&utm_content=creditCopyText';
 ---
 <footer class="site-footer" lang={lang}>
-	<p class="site-footer__copyright">
-		© {year}
-		{wordmarkImage ? (
-			<Image
-				src={wordmarkImage}
-				alt={SITE_TITLE}
-				height={56}
-				format={wordmarkImage.format === 'svg' ? 'svg' : undefined}
-			/>
-		) : (
-			SITE_TITLE
-		)}
-	</p>
-	<p class="site-footer__credit">
-		{lang === 'tr' ? (
-			<>Fotoğraf: <a href={photographerUrl}>Ivo Rainha</a>, <a href={photoUrl}>Unsplash</a></>
-		) : (
-			<>Photo by <a href={photographerUrl}>Ivo Rainha</a> on <a href={photoUrl}>Unsplash</a></>
-		)}
-	</p>
-	<p class="site-footer__social">
-		<a href={INSTAGRAM_URL} rel="me">Instagram · @{INSTAGRAM_HANDLE}</a>
-	</p>
+	<nav class="site-footer__nav" aria-label={PAGES_NAV_LABEL[lang]}>
+		<ul>
+			<li><a href={`/${lang}/about`}>{ABOUT_LABEL[lang]}</a></li>
+		</ul>
+	</nav>
+	<div class="site-footer__meta">
+		<p class="site-footer__copyright">
+			© {year}
+			{wordmarkImage ? (
+				<Image
+					src={wordmarkImage}
+					alt={SITE_TITLE}
+					height={56}
+					format={wordmarkImage.format === 'svg' ? 'svg' : undefined}
+				/>
+			) : (
+				SITE_TITLE
+			)}
+		</p>
+		<p class="site-footer__credit">
+			{lang === 'tr' ? (
+				<>Fotoğraf: <a href={photographerUrl}>Ivo Rainha</a>, <a href={photoUrl}>Unsplash</a></>
+			) : (
+				<>Photo by <a href={photographerUrl}>Ivo Rainha</a> on <a href={photoUrl}>Unsplash</a></>
+			)}
+		</p>
+		<p class="site-footer__social">
+			<a href={INSTAGRAM_URL} rel="me">Instagram · @{INSTAGRAM_HANDLE}</a>
+		</p>
+	</div>
 </footer>
 
 <style>
+	/* About on the left; copyright, photo credit and Instagram stacked and
+	   right-aligned on the right. On a narrow phone the two sides wrap onto
+	   their own rows, keeping the same alignment. */
 	.site-footer {
+		display: flex;
+		flex-wrap: wrap;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 1rem 2rem;
+	}
+
+	.site-footer__nav ul {
+		margin: 0;
+		padding: 0;
+		list-style: none;
+	}
+
+	.site-footer__nav a {
+		display: inline-block;
+		padding: 0.25rem 0;
+	}
+
+	.site-footer__meta {
+		margin-inline-start: auto;
 		text-align: end;
 	}
 
-	.site-footer p {
+	.site-footer__meta p {
 		margin: 0;
 		font-size: 0.875rem;
 		/* Dark enough for AA contrast on the white content box. */
@@ -65,7 +103,7 @@ const photoUrl =
 
 	/* The wordmark sits in line with "© year", big enough that its small
 	   capitals ("BIR", "DAHA") stay legible. */
-	.site-footer__copyright {
+	.site-footer__meta .site-footer__copyright {
 		display: flex;
 		justify-content: flex-end;
 		align-items: center;
@@ -77,8 +115,12 @@ const photoUrl =
 		height: 1.75rem;
 	}
 
-	.site-footer__credit,
-	.site-footer__social {
+	/* A clear break between the copyright line and the credits beneath it. */
+	.site-footer__meta .site-footer__credit {
+		margin-top: 0.75rem;
+	}
+
+	.site-footer__meta .site-footer__social {
 		margin-top: 0.25rem;
 	}
 </style>

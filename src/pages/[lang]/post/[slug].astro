@@ -10,7 +10,8 @@ import {
 	formatDate,
 	type Locale,
 } from '../../../lib/i18n';
-import { blocksToPlainText, renderPortableText, type PortableTextBlock } from '../../../lib/portableText';
+import RichText from '../../../components/RichText.astro';
+import { blocksToPlainText, type PortableTextBlock } from '../../../lib/portableText';
 import type { CategoryRef, CoverImage } from '../../../lib/content';
 
 interface PostDoc {
@@ -53,7 +54,6 @@ const post: PostDoc | null = await sanityClient.fetch(POST_BY_SLUG_QUERY, { slug
 // exists in both languages via the auto-created translation stub.
 const hasBody = Array.isArray(post?.body) && post.body.length > 0;
 const paragraphs = hasBody ? blocksToPlainText(post!.body) : [];
-const bodyHtml = hasBody ? renderPortableText(post!.body) : '';
 const categories = hasBody ? (post!.categories ?? []) : [];
 
 // Meta description: the author's own excerpt when she wrote one, else the
@@ -103,8 +103,7 @@ if (post) {
 					<time datetime={post!.publishedAt}>{formatDate(post!.publishedAt, lang)}</time>
 				</p>
 			)}
-			{/* Rich text rendered by lib/portableText.ts (escaped, links vetted). */}
-			<div class="post__body" set:html={bodyHtml} />
+			<RichText class="post__body" blocks={post!.body} />
 			{categories.length > 0 && (
 				<footer class="post__footer">
 					<ul class="post__categories">
@@ -151,71 +150,6 @@ if (post) {
 		margin: 0 0 1.5rem;
 		font-size: 0.875rem;
 		color: var(--color-muted);
-	}
-
-	.post__body {
-		overflow-wrap: break-word;
-	}
-
-	/* The body is injected HTML (set:html), which scoped styles can't see,
-	   hence :global() for everything inside it. */
-	.post__body :global(:is(p, ul, ol, blockquote, figure)) {
-		margin: 0 0 1.1em;
-	}
-
-	.post__body :global(:is(h2, h3)) {
-		line-height: 1.25;
-		margin: 1.75em 0 0.5em;
-	}
-
-	.post__body :global(h2) {
-		font-size: 1.5rem;
-	}
-
-	.post__body :global(h3) {
-		font-size: 1.2rem;
-	}
-
-	.post__body :global(:is(ul, ol)) {
-		padding-inline-start: 1.5em;
-	}
-
-	.post__body :global(li + li) {
-		margin-top: 0.25em;
-	}
-
-	/* A soft rose rule, like the nav band, rather than a heavy block. */
-	.post__body :global(blockquote) {
-		margin-inline: 0;
-		padding: 0.25em 0 0.25em 1em;
-		border-inline-start: 3px solid var(--color-nav);
-		color: var(--color-muted);
-		font-style: italic;
-	}
-
-	.post__body :global(blockquote p) {
-		margin: 0;
-	}
-
-	.post__body :global(code) {
-		padding: 0.1em 0.3em;
-		border-radius: 4px;
-		background: var(--color-chip);
-		font-size: 0.9em;
-	}
-
-	.post__body :global(.post-figure img) {
-		display: block;
-		width: 100%;
-		height: auto;
-		border-radius: 4px;
-	}
-
-	.post__body :global(.post-figure figcaption) {
-		margin-top: 0.5em;
-		font-size: 0.875rem;
-		color: var(--color-muted);
-		text-align: center;
 	}
 
 	.post__footer {

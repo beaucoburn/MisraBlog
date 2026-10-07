@@ -5,6 +5,8 @@ import {documentInternationalization} from '@sanity/document-internationalizatio
 import {internationalizedArray} from 'sanity-plugin-internationalized-array'
 import {schemaTypes} from './schemaTypes'
 import {createPublishWithTranslationStubAction} from './actions/publishWithTranslationStub'
+import {UserIcon} from '@sanity/icons/User'
+import {ABOUT_PAGE_ID} from './schemaTypes/aboutPage'
 
 // Fixed, hardcoded EN/TR locale list - this is a two-language site, not an
 // open-ended editor-managed locale list, so this is intentionally not a
@@ -22,7 +24,23 @@ export default defineConfig({
   dataset: 'production',
 
   plugins: [
-    structureTool(),
+    structureTool({
+      // The About page is a singleton: one fixed entry at the top of the
+      // sidebar that opens its single document directly, instead of a list
+      // she could add more About pages to. Everything else is the default.
+      structure: (S) =>
+        S.list()
+          .title('Content')
+          .items([
+            S.listItem()
+              .title('About page')
+              .id(ABOUT_PAGE_ID)
+              .icon(UserIcon)
+              .child(S.document().schemaType('aboutPage').documentId(ABOUT_PAGE_ID).title('About page')),
+            S.divider(),
+            ...S.documentTypeListItems().filter((item) => item.getId() !== 'aboutPage'),
+          ]),
+    }),
     visionTool(),
     // Document-level localization for `post`: independent per-language
     // publish state + independent slugs per language, via paired
@@ -56,6 +74,8 @@ export default defineConfig({
     // plain language-less `post` template and the parameterized one need
     // hiding.
     newDocumentOptions: (prev, {creationContext}) => {
+      // Never offer "new About page": there is exactly one (see structure above).
+      prev = prev.filter((templateItem) => templateItem.templateId !== 'aboutPage')
       if (creationContext.type !== 'global' && creationContext.type !== 'structure') {
         return prev
       }
@@ -67,11 +87,18 @@ export default defineConfig({
           return templateItem
         })
     },
-    actions: (prev, context) =>
-      context.schemaType === 'post'
-        ? prev.map((action) =>
-            action.action === 'publish' ? createPublishWithTranslationStubAction(action) : action,
-          )
-        : prev,
+    actions: (prev, context) => {
+      if (context.schemaType === 'post') {
+        return prev.map((action) =>
+          action.action === 'publish' ? createPublishWithTranslationStubAction(action) : action,
+        )
+      }
+      // The single About page can be edited and published, but not
+      // duplicated or deleted.
+      if (context.schemaType === 'aboutPage') {
+        return prev.filter((action) => action.action !== 'duplicate' && action.action !== 'delete')
+      }
+      return prev
+    },
   },
 })
