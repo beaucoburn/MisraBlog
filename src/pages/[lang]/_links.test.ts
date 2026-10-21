@@ -61,7 +61,7 @@ test('ends with buttons to all posts, About, and her Instagram', async () => {
   expect(buttons).toContain('href="/tr/"');
   expect(buttons).toContain('Tüm yazılar');
   expect(buttons).toContain('href="/tr/about"');
-  expect(buttons).toContain('href="https://www.instagram.com/misranaganlu/"');
+  expect(buttons).toContain('href="https://www.instagram.com/_birmisradaha/"');
 });
 
 test('the language switcher points at the other locale’s links page', async () => {

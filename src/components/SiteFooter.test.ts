@@ -37,8 +37,8 @@ test('credits the hero photo with Unsplash attribution links in both locales', a
 test('links to her Instagram in both locales', async () => {
   for (const lang of ['en', 'tr']) {
     const result = await renderFooter(lang);
-    expect(result).toContain('href="https://www.instagram.com/misranaganlu/"');
-    expect(result).toContain('@misranaganlu');
+    expect(result).toContain('href="https://www.instagram.com/_birmisradaha/"');
+    expect(result).toContain('@_birmisradaha');
   }
 });
 
