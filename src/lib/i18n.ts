@@ -20,7 +20,7 @@ export const SITE_TITLE = 'Bir Misra Daha';
 
 // Her Instagram, linked from the footer and the /links page. Like the site
 // name, the same in every language.
-export const INSTAGRAM_HANDLE = 'misranaganlu';
+export const INSTAGRAM_HANDLE = '_birmisradaha';
 export const INSTAGRAM_URL = `https://www.instagram.com/${INSTAGRAM_HANDLE}/`;
 
 // Builds the language-switcher href map for pages whose path is identical
